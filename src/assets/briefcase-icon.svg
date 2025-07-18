@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect x="10" y="10" width="40" height="40" rx="10" fill="url(#grad)" />
+
+  <!-- Briefcase body -->
+  <rect x="20" y="22" width="20" height="16" rx="2" fill="white" />
+
+  <!-- Handle -->
+  <rect x="26" y="19" width="8" height="3" rx="1" fill="white" />
+
+  <!-- Latch -->
+  <rect x="28" y="28" width="4" height="1" fill="#3b82f6" />
+</svg>
