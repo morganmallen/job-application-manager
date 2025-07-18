@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60">
+  <style>
+    .briefcase-icon {
+      fill: #232946;
+      stroke: #232946;
+      stroke-width: 2;
+    }
+
+    .label {
+      font-size: 20px;
+      font-family: sans-serif;
+      fill: #ffffff;
+      font-weight: bold;
+    }
+  </style>
+
+  <!-- Briefcase Icon Background -->
+  <rect x="10" y="10" width="40" height="40" rx="10" fill="#ffffff" />
+
+  <!-- Briefcase Icon -->
+  <g class="briefcase-icon">
+    <rect x="20" y="22" width="20" height="16" rx="2" />
+    <rect x="26" y="19" width="8" height="3" rx="1" />
+    <rect x="28" y="28" width="4" height="1" fill="#ffffff" />
+  </g>
+
+  <!-- Label -->
+  <text x="60" y="35" class="label">NextStep</text>
+</svg>
