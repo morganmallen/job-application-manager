@@ -45,6 +45,10 @@ export class User {
   @Column()
   name!: string;
 
+  @ApiProperty({ description: 'Hashed user password' })
+  @Column()
+  password_hash!: string;
+
   @ApiProperty({ description: 'Creation timestamp' })
   @CreateDateColumn()
   createdAt!: Date;
