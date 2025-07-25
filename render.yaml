@@ -26,6 +26,6 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ORIGIN
-        value: https://jobapp-frontend.onrender.com
+        value: "*"
     healthCheckPath: /api/health
     autoDeploy: true
