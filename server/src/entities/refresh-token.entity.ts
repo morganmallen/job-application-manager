@@ -20,30 +20,30 @@ export class RefreshToken {
   token_hash!: string;
 
   @ApiProperty({ description: 'User ID who owns this token' })
-  @Column()
+  @Column({ name: 'user_id' })
   userId!: string;
 
   @ApiProperty({ description: 'Token expiration date' })
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamp', name: 'expires_at' })
   expiresAt!: Date;
 
   @ApiProperty({ description: 'Whether the token has been revoked' })
-  @Column({ default: false })
+  @Column({ default: false, name: 'is_revoked' })
   isRevoked!: boolean;
 
   @ApiProperty({ description: 'User agent information' })
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text', nullable: true, name: 'user_agent' })
   userAgent!: string;
 
   @ApiProperty({ description: 'IP address of the client' })
-  @Column({ nullable: true })
+  @Column({ nullable: true, name: 'ip_address' })
   ipAddress!: string;
 
   @ApiProperty({ description: 'Creation timestamp' })
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'user_id' })
   user!: User;
 }

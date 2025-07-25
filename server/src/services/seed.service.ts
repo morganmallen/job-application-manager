@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User, ApplicationStatus, EventType } from '../entities/user.entity';
+import { User } from '../entities/user.entity';
+import { ApplicationStatus, EventType } from '../entities/enums';
 import { Company } from '../entities/company.entity';
 import { Application } from '../entities/application.entity';
 import { ApplicationEvent } from '../entities/application-event.entity';
@@ -74,7 +75,7 @@ export class SeedService {
       this.applicationsRepository.save(
         this.applicationsRepository.create({
           position: 'Senior Software Engineer',
-          status: ApplicationStatus.INTERVIEWING,
+          status: ApplicationStatus.IN_PROGRESS,
           appliedAt: new Date('2024-01-15'),
           notes: 'Great company culture, exciting projects',
           salary: '$120,000 - $150,000',
@@ -100,7 +101,7 @@ export class SeedService {
       this.applicationsRepository.save(
         this.applicationsRepository.create({
           position: 'Software Architect',
-          status: ApplicationStatus.OFFER,
+          status: ApplicationStatus.JOB_OFFERED,
           appliedAt: new Date('2024-01-10'),
           notes: 'Received offer, negotiating terms',
           salary: '$140,000 - $170,000',

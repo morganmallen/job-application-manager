@@ -1,0 +1,639 @@
+### Job Application Manager API Testing
+### Base URL and Variables
+@baseUrl = http://localhost:3001/api
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYjhlY2ZkMC01NmUwLTQ1YTUtODE2NS1mM2U4MGRlNTQ0NjkiLCJlbWFpbCI6InRlc3QyQGV4YW1wbGUuY29tIiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc1MzQ2NDE4NiwiZXhwIjoxNzUzNDY1MDg2fQ.OJbDnfHDhcA-D7OcDjQkfMl6rzltn1Q4trTRpS-PTQs
+@refreshToken = 42318f8351503d444d3c36be92eecc0e06e638a377d178779ac89912c56ef3917c4aa13a64408135127e66dbd5490d18a63c73fd8d6afb185f504e5e5ebca763
+
+### ========================================
+### 🔐 AUTHENTICATION ENDPOINTS
+### ========================================
+
+### 1. User Registration - Valid
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123",
+  "first_name": "John",
+  "last_name": "Doe"
+}
+
+### 2. User Registration - Duplicate Email
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123",
+  "first_name": "Jane",
+  "last_name": "Smith"
+}
+
+### 3. User Registration - Invalid Email
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "invalid-email",
+  "password": "password123",
+  "first_name": "John",
+  "last_name": "Doe"
+}
+
+### 4. User Registration - Missing Fields
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### 5. User Login - Valid
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### 6. User Login - Invalid Password
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "wrongpassword"
+}
+
+### 7. User Login - Non-existent User
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "nonexistent@example.com",
+  "password": "password123"
+}
+
+### 8. Token Refresh - Valid
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refresh_token": "{{refreshToken}}"
+}
+
+### 9. Token Refresh - Invalid
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refresh_token": "invalid_token"
+}
+
+### 10. Logout - Single Device
+POST {{baseUrl}}/auth/logout
+Content-Type: application/json
+
+{
+  "refresh_token": "{{refreshToken}}"
+}
+
+### 11. Logout - All Devices
+POST {{baseUrl}}/auth/logout-all
+Authorization: Bearer {{authToken}}
+
+### 12. Get User Sessions
+GET {{baseUrl}}/auth/sessions
+Authorization: Bearer {{authToken}}
+
+### ========================================
+### 👥 USERS ENDPOINTS
+### ========================================
+
+### 13. Get All Users - Authenticated
+GET {{baseUrl}}/users
+Authorization: Bearer {{authToken}}
+
+### 14. Get All Users - Unauthenticated
+GET {{baseUrl}}/users
+
+### 15. Get User by ID - Valid
+GET {{baseUrl}}/users/USER_ID_HERE
+Authorization: Bearer {{authToken}}
+
+### 16. Get User by ID - Invalid
+GET {{baseUrl}}/users/invalid-id
+Authorization: Bearer {{authToken}}
+
+### 17. Get User by ID - Non-existent
+GET {{baseUrl}}/users/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{authToken}}
+
+### 18. Create User - Valid
+POST {{baseUrl}}/users
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "email": "newuser@example.com",
+  "password": "password123",
+  "first_name": "New",
+  "last_name": "User"
+}
+
+### 19. Create User - Duplicate Email
+POST {{baseUrl}}/users
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123",
+  "first_name": "Duplicate",
+  "last_name": "User"
+}
+
+### 20. Update User - Valid
+PATCH {{baseUrl}}/users/USER_ID_HERE
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "first_name": "Updated",
+  "last_name": "Name"
+}
+
+### 21. Update User - Partial
+PATCH {{baseUrl}}/users/USER_ID_HERE
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "first_name": "OnlyFirst"
+}
+
+### 22. Delete User
+DELETE {{baseUrl}}/users/USER_ID_HERE
+Authorization: Bearer {{authToken}}
+
+### ========================================
+### 🏢 COMPANIES ENDPOINTS
+### ========================================
+
+### 23. Get All Companies
+GET {{baseUrl}}/companies
+Authorization: Bearer {{authToken}}
+
+### 24. Get Company by ID
+GET {{baseUrl}}/companies/COMPANY_ID_HERE
+Authorization: Bearer {{authToken}}
+
+### 25. Create Company - Full Data
+POST {{baseUrl}}/companies
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "TechCorp",
+  "website": "https://techcorp.com",
+  "description": "A technology company",
+  "location": "San Francisco, CA",
+  "userId": "USER_ID_HERE"
+}
+
+### 26. Create Company - Minimal Data
+POST {{baseUrl}}/companies
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "MinimalCorp",
+  "userId": "USER_ID_HERE"
+}
+
+### 27. Update Company
+PATCH {{baseUrl}}/companies/COMPANY_ID_HERE
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Updated TechCorp",
+  "website": "https://updated-techcorp.com"
+}
+
+### 28. Delete Company
+DELETE {{baseUrl}}/companies/COMPANY_ID_HERE
+Authorization: Bearer {{authToken}}
+
+### ========================================
+### 📝 APPLICATIONS ENDPOINTS
+### ========================================
+
+### 29. Get All Applications
+GET {{baseUrl}}/applications
+Authorization: Bearer {{authToken}}
+
+### 30. Get Application by ID
+GET {{baseUrl}}/applications/APPLICATION_ID_HERE
+Authorization: Bearer {{authToken}}
+
+### 31. Create Application - Applied Status
+POST {{baseUrl}}/applications
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "position": "Software Engineer",
+  "status": "APPLIED",
+  "appliedAt": "2024-01-15T10:00:00Z",
+  "notes": "Applied through LinkedIn",
+  "salary": "$120,000 - $150,000",
+  "location": "Remote",
+  "remote": true,
+  "userId": "USER_ID_HERE",
+  "companyId": "COMPANY_ID_HERE"
+}
+
+### 32. Create Application - Interviewing Status
+POST {{baseUrl}}/applications
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "position": "Senior Developer",
+  "status": "INTERVIEWING",
+  "appliedAt": "2024-01-10T10:00:00Z",
+  "userId": "USER_ID_HERE",
+  "companyId": "COMPANY_ID_HERE"
+}
+
+### 33. Create Application - Offer Status
+POST {{baseUrl}}/applications
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "position": "Lead Developer",
+  "status": "OFFER",
+  "appliedAt": "2024-01-05T10:00:00Z",
+  "userId": "USER_ID_HERE",
+  "companyId": "COMPANY_ID_HERE"
+}
+
+### 34. Update Application - Status Change
+PATCH {{baseUrl}}/applications/APPLICATION_ID_HERE
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "status": "OFFER"
+}
+
+### 35. Update Application - Multiple Fields
+PATCH {{baseUrl}}/applications/APPLICATION_ID_HERE
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "status": "ACCEPTED",
+  "notes": "Accepted the offer!",
+  "salary": "$140,000"
+}
+
+### 36. Delete Application
+DELETE {{baseUrl}}/applications/APPLICATION_ID_HERE
+Authorization: Bearer {{authToken}}
+
+### ========================================
+### 📅 EVENTS ENDPOINTS
+### ========================================
+
+### 37. Get All Events
+GET {{baseUrl}}/events
+Authorization: Bearer {{authToken}}
+
+### 38. Get Event by ID
+GET {{baseUrl}}/events/EVENT_ID_HERE
+Authorization: Bearer {{authToken}}
+
+### 39. Create Event - Phone Screen
+POST {{baseUrl}}/events
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "type": "PHONE_SCREEN",
+  "title": "Initial Phone Screen",
+  "description": "30-minute phone call with HR",
+  "scheduledAt": "2024-01-20T14:00:00Z",
+  "applicationId": "APPLICATION_ID_HERE"
+}
+
+### 40. Create Event - Technical Interview
+POST {{baseUrl}}/events
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "type": "TECHNICAL_INTERVIEW",
+  "title": "Technical Interview",
+  "description": "Coding challenge and system design",
+  "scheduledAt": "2024-01-25T10:00:00Z",
+  "applicationId": "APPLICATION_ID_HERE"
+}
+
+### 41. Create Event - Behavioral Interview
+POST {{baseUrl}}/events
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "type": "BEHAVIORAL_INTERVIEW",
+  "title": "Behavioral Interview",
+  "description": "Culture fit and past experiences",
+  "scheduledAt": "2024-01-30T15:00:00Z",
+  "applicationId": "APPLICATION_ID_HERE"
+}
+
+### 42. Create Event - Coding Challenge
+POST {{baseUrl}}/events
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "type": "CODING_CHALLENGE",
+  "title": "Take-home Coding Challenge",
+  "description": "Build a small application",
+  "scheduledAt": "2024-02-01T09:00:00Z",
+  "applicationId": "APPLICATION_ID_HERE"
+}
+
+### 43. Update Event - Mark Completed
+PATCH {{baseUrl}}/events/EVENT_ID_HERE
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "completedAt": "2024-01-20T14:30:00Z"
+}
+
+### 44. Delete Event
+DELETE {{baseUrl}}/events/EVENT_ID_HERE
+Authorization: Bearer {{authToken}}
+
+### ========================================
+### 📝 NOTES ENDPOINTS
+### ========================================
+
+### 45. Get All Notes
+GET {{baseUrl}}/notes
+Authorization: Bearer {{authToken}}
+
+### 46. Get Note by ID
+GET {{baseUrl}}/notes/NOTE_ID_HERE
+Authorization: Bearer {{authToken}}
+
+### 47. Create Note
+POST {{baseUrl}}/notes
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "content": "Had a great conversation with the hiring manager. They seem interested in my background and experience.",
+  "applicationId": "APPLICATION_ID_HERE"
+}
+
+### 48. Update Note
+PATCH {{baseUrl}}/notes/NOTE_ID_HERE
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "content": "Updated note content with additional information about the interview process."
+}
+
+### 49. Delete Note
+DELETE {{baseUrl}}/notes/NOTE_ID_HERE
+Authorization: Bearer {{authToken}}
+
+### 50. Get Notes by Application
+GET {{baseUrl}}/notes/application/APPLICATION_ID_HERE
+Authorization: Bearer {{authToken}}
+
+### ========================================
+### 🏥 HEALTH ENDPOINT
+### ========================================
+
+### 51. Health Check
+GET {{baseUrl}}/health
+
+### ========================================
+### 🧪 ERROR TESTING
+### ========================================
+
+### 52. Missing Authentication
+GET {{baseUrl}}/users
+
+### 53. Invalid Token
+GET {{baseUrl}}/users
+Authorization: Bearer invalid_token
+
+### 54. Invalid UUID
+GET {{baseUrl}}/users/invalid-uuid
+Authorization: Bearer {{authToken}}
+
+### 55. Missing Required Fields
+POST {{baseUrl}}/applications
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{}
+
+### 56. Invalid Enum Values
+POST {{baseUrl}}/applications
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "position": "Test",
+  "status": "INVALID_STATUS",
+  "userId": "USER_ID_HERE",
+  "companyId": "COMPANY_ID_HERE"
+}
+
+### 57. Non-existent Resource
+GET {{baseUrl}}/users/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{authToken}}
+
+### 58. Invalid Endpoint
+GET {{baseUrl}}/invalid-endpoint
+Authorization: Bearer {{authToken}}
+
+### ========================================
+### 🔄 COMPLETE WORKFLOW TEST
+### ========================================
+
+### 59. Workflow Step 1: Register User
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "workflow@example.com",
+  "password": "password123",
+  "first_name": "Workflow",
+  "last_name": "User"
+}
+
+### 60. Workflow Step 2: Login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "workflow@example.com",
+  "password": "password123"
+}
+
+### 61. Workflow Step 3: Create Company
+POST {{baseUrl}}/companies
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "WorkflowCorp",
+  "website": "https://workflowcorp.com",
+  "description": "A company for testing workflows",
+  "location": "Test City, TC"
+}
+
+### 62. Workflow Step 4: Create Application
+POST {{baseUrl}}/applications
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "position": "Workflow Engineer",
+  "status": "APPLIED",
+  "appliedAt": "2024-01-15T10:00:00Z",
+  "notes": "Applied through workflow test",
+  "userId": "USER_ID_FROM_LOGIN",
+  "companyId": "COMPANY_ID_FROM_CREATE"
+}
+
+### 63. Workflow Step 5: Create Event
+POST {{baseUrl}}/events
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "type": "PHONE_SCREEN",
+  "title": "Workflow Phone Screen",
+  "description": "Testing the workflow",
+  "scheduledAt": "2024-01-20T14:00:00Z",
+  "applicationId": "APPLICATION_ID_FROM_CREATE"
+}
+
+### 64. Workflow Step 6: Create Note
+POST {{baseUrl}}/notes
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "content": "Workflow test note - everything is working well!",
+  "applicationId": "APPLICATION_ID_FROM_CREATE"
+}
+
+### 65. Workflow Step 7: Update Application Status
+PATCH {{baseUrl}}/applications/APPLICATION_ID_FROM_CREATE
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "status": "INTERVIEWING"
+}
+
+### 66. Workflow Step 8: Get All Data
+GET {{baseUrl}}/users
+Authorization: Bearer {{authToken}}
+
+### 67. Workflow Step 9: Get All Companies
+GET {{baseUrl}}/companies
+Authorization: Bearer {{authToken}}
+
+### 68. Workflow Step 10: Get All Applications
+GET {{baseUrl}}/applications
+Authorization: Bearer {{authToken}}
+
+### 69. Workflow Step 11: Get All Events
+GET {{baseUrl}}/events
+Authorization: Bearer {{authToken}}
+
+### 70. Workflow Step 12: Get All Notes
+GET {{baseUrl}}/notes
+Authorization: Bearer {{authToken}}
+
+### ========================================
+### 📊 PERFORMANCE TESTING
+### ========================================
+
+### 71. Health Check Performance
+GET {{baseUrl}}/health
+
+### 72. Applications Query Performance
+GET {{baseUrl}}/applications
+Authorization: Bearer {{authToken}}
+
+### 73. Users Query Performance
+GET {{baseUrl}}/users
+Authorization: Bearer {{authToken}}
+
+### ========================================
+### 🔍 DATA INTEGRITY TESTING
+### ========================================
+
+### 74. Create Application with Invalid User ID
+POST {{baseUrl}}/applications
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "position": "Test",
+  "status": "APPLIED",
+  "userId": "00000000-0000-0000-0000-000000000000",
+  "companyId": "COMPANY_ID_HERE"
+}
+
+### 75. Create Application with Invalid Company ID
+POST {{baseUrl}}/applications
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "position": "Test",
+  "status": "APPLIED",
+  "userId": "USER_ID_HERE",
+  "companyId": "00000000-0000-0000-0000-000000000000"
+}
+
+### 76. Create Event with Invalid Application ID
+POST {{baseUrl}}/events
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "type": "PHONE_SCREEN",
+  "title": "Test Event",
+  "applicationId": "00000000-0000-0000-0000-000000000000"
+}
+
+### 77. Create Note with Invalid Application ID
+POST {{baseUrl}}/notes
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "content": "Test note",
+  "applicationId": "00000000-0000-0000-0000-000000000000"
+} 

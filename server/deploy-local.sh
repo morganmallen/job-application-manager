@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 DB_NAME="jobapp_db"
-DB_USER="postgres"
+DB_USER=$(whoami)
 DB_HOST="localhost"
 DB_PORT="5432"
 SERVER_PORT="3001"
