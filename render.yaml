@@ -12,6 +12,7 @@ services:
     name: jobapp-api
     env: node
     plan: free
+    nodeVersion: 18
     buildCommand: cd server && npm install
     startCommand: cd server && npm run start:prod
     envVars:
