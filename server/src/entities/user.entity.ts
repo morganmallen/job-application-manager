@@ -41,9 +41,13 @@ export class User {
   @Column({ unique: true })
   email!: string;
 
-  @ApiProperty({ description: 'User name' })
+  @ApiProperty({ description: 'User first name' })
   @Column()
-  name!: string;
+  first_name!: string;
+
+  @ApiProperty({ description: 'User last name' })
+  @Column()
+  last_name!: string;
 
   @ApiProperty({ description: 'Hashed user password' })
   @Column()

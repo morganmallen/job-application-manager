@@ -12,6 +12,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { User, ApplicationStatus } from './user.entity';
 import { Company } from './company.entity';
 import { ApplicationEvent } from './application-event.entity';
+import { Note } from './note.entity';
 
 @Entity('applications')
 export class Application {
@@ -79,4 +80,7 @@ export class Application {
 
   @OneToMany(() => ApplicationEvent, (event) => event.application)
   events!: ApplicationEvent[];
+
+  @OneToMany(() => Note, (note) => note.application)
+  noteEntities!: Note[];
 }

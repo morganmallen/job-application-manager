@@ -18,13 +18,24 @@ export class UpdateUserDto {
   email?: string;
 
   @ApiProperty({
-    description: 'User name',
-    example: 'John Doe',
+    description: 'User first name',
+    example: 'John',
     required: false,
   })
   @IsOptional()
   @IsString()
   @MinLength(1)
   @MaxLength(100)
-  name?: string;
+  first_name?: string;
+
+  @ApiProperty({
+    description: 'User last name',
+    example: 'Doe',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(100)
+  last_name?: string;
 }

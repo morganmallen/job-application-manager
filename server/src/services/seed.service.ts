@@ -26,11 +26,12 @@ export class SeedService {
     const user = await this.usersRepository.save(
       this.usersRepository.create({
         email: 'john.doe@example.com',
-        name: 'John Doe',
+        first_name: 'John',
+        last_name: 'Doe',
       }),
     );
 
-    console.log('✅ Created user:', user.name);
+    console.log('✅ Created user:', `${user.first_name} ${user.last_name}`);
 
     // Create sample companies
     const companies = await Promise.all([
