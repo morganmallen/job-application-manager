@@ -57,7 +57,7 @@ import { ClientInfoMiddleware } from './middleware/client-info.middleware';
           RefreshToken,
           TokenBlacklist,
         ],
-        synchronize: configService.get('NODE_ENV') === 'development',
+        synchronize: false, // Disabled to use manual schema
         logging: configService.get('NODE_ENV') === 'development',
       }),
       inject: [ConfigService],

@@ -20,16 +20,16 @@ export class Note {
   content!: string;
 
   @ApiProperty({ description: 'Creation timestamp' })
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
   @ApiProperty({ description: 'Application ID this note belongs to' })
-  @Column()
+  @Column({ name: 'application_id' })
   applicationId!: string;
 
   @ManyToOne(() => Application, (application) => application.notes, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'applicationId' })
+  @JoinColumn({ name: 'application_id' })
   application!: Application;
 }

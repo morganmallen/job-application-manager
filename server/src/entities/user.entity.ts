@@ -10,27 +10,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Company } from './company.entity';
 import { Application } from './application.entity';
 
-export enum ApplicationStatus {
-  APPLIED = 'APPLIED',
-  INTERVIEWING = 'INTERVIEWING',
-  OFFER = 'OFFER',
-  REJECTED = 'REJECTED',
-  WITHDRAWN = 'WITHDRAWN',
-  ACCEPTED = 'ACCEPTED',
-}
-
-export enum EventType {
-  PHONE_SCREEN = 'PHONE_SCREEN',
-  TECHNICAL_INTERVIEW = 'TECHNICAL_INTERVIEW',
-  BEHAVIORAL_INTERVIEW = 'BEHAVIORAL_INTERVIEW',
-  CODING_CHALLENGE = 'CODING_CHALLENGE',
-  TAKE_HOME_ASSIGNMENT = 'TAKE_HOME_ASSIGNMENT',
-  ONSITE_INTERVIEW = 'ONSITE_INTERVIEW',
-  REFERENCE_CHECK = 'REFERENCE_CHECK',
-  NEGOTIATION = 'NEGOTIATION',
-  OTHER = 'OTHER',
-}
-
 @Entity('users')
 export class User {
   @ApiProperty({ description: 'Unique identifier' })
@@ -54,11 +33,11 @@ export class User {
   password_hash!: string;
 
   @ApiProperty({ description: 'Creation timestamp' })
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
   @ApiProperty({ description: 'Last update timestamp' })
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt!: Date;
 
   @OneToMany(() => Company, (company) => company.user)

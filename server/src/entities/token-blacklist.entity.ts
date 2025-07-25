@@ -17,7 +17,7 @@ export class TokenBlacklist {
   token_hash!: string;
 
   @ApiProperty({ description: 'Token expiration date' })
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamp', name: 'expires_at' })
   expiresAt!: Date;
 
   @ApiProperty({ description: 'Reason for blacklisting' })
@@ -25,6 +25,6 @@ export class TokenBlacklist {
   reason!: string;
 
   @ApiProperty({ description: 'Creation timestamp' })
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 }

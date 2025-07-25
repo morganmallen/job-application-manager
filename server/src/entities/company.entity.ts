@@ -35,19 +35,19 @@ export class Company {
   location!: string;
 
   @ApiProperty({ description: 'Creation timestamp' })
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
   @ApiProperty({ description: 'Last update timestamp' })
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt!: Date;
 
   @ApiProperty({ description: 'User ID who owns this company' })
-  @Column()
+  @Column({ name: 'user_id' })
   userId!: string;
 
   @ManyToOne(() => User, (user) => user.companies, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'user_id' })
   user!: User;
 
   @OneToMany(() => Application, (application) => application.company)

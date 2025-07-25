@@ -7,7 +7,7 @@ import {
   IsEnum,
   IsDateString,
 } from 'class-validator';
-import { EventType } from '../entities/user.entity';
+import { EventType } from '../entities/enums';
 
 export class UpdateEventDto {
   @ApiProperty({ description: 'Event type', enum: EventType, required: false })
