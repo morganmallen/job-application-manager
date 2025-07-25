@@ -12,7 +12,7 @@ services:
     name: jobapp-api
     env: node
     plan: free
-    buildCommand: cd server && npm ci --ignore-scripts && npm run build
+    buildCommand: cd server && npm install
     startCommand: cd server && npm run start:prod
     envVars:
       - key: NODE_ENV
@@ -27,5 +27,9 @@ services:
         generateValue: true
       - key: CORS_ORIGIN
         value: "*"
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
     healthCheckPath: /api/health
     autoDeploy: true
