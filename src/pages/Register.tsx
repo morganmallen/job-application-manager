@@ -4,20 +4,21 @@ import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
-const SignIn = () => {
+const Register = () => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Placeholder for authentication logic
-    if (!email || !password) {
-      setError('Please enter both email and password.');
+    if (!firstName || !lastName || !email || !password) {
+      setError('Please fill out all fields.');
       return;
     }
     setError('');
-    // Add sign-in logic here
+    // Add registration logic here
   };
 
   return (
@@ -25,8 +26,26 @@ const SignIn = () => {
       <Header />
       <div className="auth-page">
         <form className="auth-form" onSubmit={handleSubmit}>
-          <h2>Sign In</h2>
+          <h2>Register</h2>
           {error && <div className="error-message">{error}</div>}
+          <label htmlFor="firstName">First Name</label>
+          <input
+            id="firstName"
+            type="text"
+            value={firstName}
+            onChange={e => setFirstName(e.target.value)}
+            autoComplete="given-name"
+            required
+          />
+          <label htmlFor="lastName">Last Name</label>
+          <input
+            id="lastName"
+            type="text"
+            value={lastName}
+            onChange={e => setLastName(e.target.value)}
+            autoComplete="family-name"
+            required
+          />
           <label htmlFor="email">Email</label>
           <input
             id="email"
@@ -42,12 +61,12 @@ const SignIn = () => {
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            autoComplete="current-password"
+            autoComplete="new-password"
             required
           />
-          <button type="submit">Sign In</button>
+          <button type="submit">Register</button>
           <div className="register-link">
-            Don't have an account? <Link to="/register">Register</Link>
+            Already have an account? <Link to="/signin">Sign In</Link>
           </div>
         </form>
       </div>
@@ -56,4 +75,4 @@ const SignIn = () => {
   );
 };
 
-export default SignIn; 
+export default Register; 
