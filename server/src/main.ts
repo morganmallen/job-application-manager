@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { AuthExceptionFilter } from './auth/auth-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -21,6 +22,9 @@ async function bootstrap() {
     }),
   );
 
+  // Global exception filter
+  app.useGlobalFilters(new AuthExceptionFilter());
+
   // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('Job Application Manager API')
@@ -32,6 +36,7 @@ async function bootstrap() {
     .addTag('Companies', 'Company management endpoints')
     .addTag('Applications', 'Job application management endpoints')
     .addTag('Events', 'Application event management endpoints')
+    .addTag('Notes', 'Application notes management endpoints')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

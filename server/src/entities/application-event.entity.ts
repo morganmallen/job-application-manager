@@ -8,7 +8,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { EventType } from './user.entity';
+import { EventType } from './enums';
 import { Application } from './application.entity';
 
 @Entity('application_events')
@@ -33,28 +33,28 @@ export class ApplicationEvent {
   description!: string;
 
   @ApiProperty({ description: 'Scheduled date and time', required: false })
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp', nullable: true, name: 'scheduled_at' })
   scheduledAt!: Date;
 
   @ApiProperty({ description: 'Completion date and time', required: false })
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp', nullable: true, name: 'completed_at' })
   completedAt!: Date;
 
   @ApiProperty({ description: 'Creation timestamp' })
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
   @ApiProperty({ description: 'Last update timestamp' })
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt!: Date;
 
   @ApiProperty({ description: 'Application ID this event belongs to' })
-  @Column()
+  @Column({ name: 'application_id' })
   applicationId!: string;
 
   @ManyToOne(() => Application, (application) => application.events, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'applicationId' })
+  @JoinColumn({ name: 'application_id' })
   application!: Application;
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './SignIn.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -8,16 +8,37 @@ const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate(); // Redirect after login
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Placeholder for authentication logic
+
     if (!email || !password) {
       setError('Please enter both email and password.');
       return;
     }
     setError('');
-    // Add sign-in logic here
+
+    try {
+      const response = await fetch('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.message || 'Failed to login');
+      }
+
+      const data = await response.json();
+      localStorage.setItem('jwtToken', data.token); // save JWT token in local storage
+
+      // Redirect to dashboard or protected page
+      navigate('/board');
+    } catch (err: any) {
+      setError(err.message);
+    }
   };
 
   return (
@@ -56,4 +77,4 @@ const SignIn = () => {
   );
 };
 
-export default SignIn; 
+export default SignIn;

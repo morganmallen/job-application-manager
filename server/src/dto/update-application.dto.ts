@@ -8,7 +8,7 @@ import {
   IsEnum,
   IsDateString,
 } from 'class-validator';
-import { ApplicationStatus } from '../entities/user.entity';
+import { ApplicationStatus } from '../entities/enums';
 
 export class UpdateApplicationDto {
   @ApiProperty({
