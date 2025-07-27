@@ -68,7 +68,7 @@ const SignIn = () => {
           />
           <button type="submit">Sign In</button>
           <div className="register-link">
-            Don't have an account? <Link to="/register">Register</Link>
+            Don't have an account? <Link to="/signup">Register</Link>
           </div>
         </form>
       </div>
