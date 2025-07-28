@@ -17,7 +17,7 @@ import { Request } from 'express';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('/auth/register')
+  @Post('/register')
   @ApiOperation({ summary: 'Register a new user' })
   @ApiResponse({
     status: 201,
@@ -43,7 +43,7 @@ export class AuthController {
     return this.authService.register(dto, userAgent, ipAddress);
   }
 
-  @Post('/auth/login')
+  @Post('/login')
   @ApiOperation({ summary: 'Login user' })
   @ApiResponse({
     status: 200,
