@@ -37,6 +37,7 @@ export class AuthController {
     description: 'User with this email already exists',
   })
   register(@Body() dto: CreateUserDto, @Req() req: Request) {
+    console.log('Received register dto:', dto);
     const userAgent = req.headers['user-agent'];
     const ipAddress =
       (req as any).clientIp || req.ip || req.connection.remoteAddress;

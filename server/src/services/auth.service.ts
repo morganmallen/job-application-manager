@@ -28,7 +28,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const isMatch = await bcrypt.compare(password, user.password_hash);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       throw new UnauthorizedException('Invalid email or password');
     }
@@ -56,20 +56,25 @@ export class AuthService {
     };
   }
 
-  async register(dto: CreateUserDto, userAgent?: string, ipAddress?: string) {
+  async register(
+    dto: CreateUserDto,
+    userAgent?: string,
+    ipAddress?: string,
+  ): Promise<{ access_token: string; refresh_token: string; user: any }> {
     try {
-      // Check if user already exists
       const existingUser = await this.usersService.findByEmail(dto.email);
       if (existingUser) {
         throw new ConflictException('User with this email already exists');
       }
 
-      const password_hash = await bcrypt.hash(dto.password, 10);
+      const hashedPassword = await bcrypt.hash(dto.password, 10);
+
       const user = await this.usersService.create({
-        ...dto,
-        password: undefined,
-        password_hash,
-      } as any);
+        email: dto.email,
+        first_name: dto.first_name,
+        last_name: dto.last_name,
+        password: hashedPassword,
+      });
 
       const tokenPair = await this.tokenService.generateTokenPair(
         user,
