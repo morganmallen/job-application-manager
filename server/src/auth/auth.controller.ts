@@ -15,7 +15,7 @@ import { Request } from 'express';
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   @Post('/register')
   @ApiOperation({ summary: 'Register a new user' })
@@ -39,8 +39,7 @@ export class AuthController {
   register(@Body() dto: CreateUserDto, @Req() req: Request) {
     console.log('Received register dto:', dto);
     const userAgent = req.headers['user-agent'];
-    const ipAddress =
-      (req as any).clientIp || req.ip || req.connection.remoteAddress;
+    const ipAddress = req.ip || (req.socket && req.socket.remoteAddress);
     return this.authService.register(dto, userAgent, ipAddress);
   }
 
