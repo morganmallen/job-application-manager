@@ -25,3 +25,5 @@ dist-ssr
 
 # Documentation
 database/IMPLEMENTATION_SUMMARY.md
+
+.env
