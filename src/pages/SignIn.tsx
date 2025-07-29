@@ -1,42 +1,46 @@
-import React, { useState } from 'react';
-import './SignIn.css';
-import { Link, useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-
+import React, { useState } from "react";
+import "./SignIn.css";
+import { Link, useNavigate } from "react-router-dom";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 const SignIn = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate(); // Redirect after login
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!email || !password) {
-      setError('Please enter both email and password.');
+      setError("Please enter both email and password.");
       return;
     }
-    setError('');
+    setError("");
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
       if (!response.ok) {
         const errData = await response.json();
-        throw new Error(errData.message || 'Failed to login');
+        throw new Error(errData.message || "Failed to login");
       }
 
       const data = await response.json();
-      localStorage.setItem('jwtToken', data.token); // save JWT token in local storage
+      localStorage.setItem("access_token", data.access_token); // save JWT token in local storage
+      localStorage.setItem("refresh_token", data.refresh_token);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
       // Redirect to dashboard or protected page
-      navigate('/board');
+      navigate("/board");
     } catch (err: any) {
       setError(err.message);
     }
@@ -54,7 +58,7 @@ const SignIn = () => {
             id="email"
             type="email"
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             autoComplete="email"
             required
           />
@@ -63,7 +67,7 @@ const SignIn = () => {
             id="password"
             type="password"
             value={password}
-            onChange={e => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
             required
           />
