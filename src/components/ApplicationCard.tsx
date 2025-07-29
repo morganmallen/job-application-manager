@@ -1,7 +1,7 @@
 import React from 'react';
 import './ApplicationCard.css';
 
-interface JobApplication {
+interface ApplicationCardData {
   id: string;
   company: string;
   position: string;
@@ -11,20 +11,36 @@ interface JobApplication {
 }
 
 interface ApplicationCardProps {
-  application: JobApplication;
-  onDragStart: (application: JobApplication) => void;
-  onEdit?: (application: JobApplication) => void;
+  application: ApplicationCardData;
+  onDragStart: (application: ApplicationCardData) => void;
+  onEdit?: (application: ApplicationCardData) => void;
   onDelete?: (applicationId: string) => void;
+  isDragging?: boolean;
 }
 
 const ApplicationCard: React.FC<ApplicationCardProps> = ({
   application,
   onDragStart,
   onEdit,
-  onDelete
+  onDelete,
+  isDragging = false
 }) => {
   const handleDragStart = () => {
     onDragStart(application);
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't trigger edit if clicking on action buttons or if dragging
+    if (e.target instanceof Element) {
+      const target = e.target as Element;
+      if (target.closest('.card-actions') || target.closest('.card-action-btn')) {
+        return;
+      }
+    }
+    
+    if (onEdit) {
+      onEdit(application);
+    }
   };
 
   const handleEdit = (e: React.MouseEvent) => {
@@ -51,9 +67,10 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
 
   return (
     <div
-      className="application-card"
+      className={`application-card ${isDragging ? 'dragging' : ''}`}
       draggable
       onDragStart={handleDragStart}
+      onClick={handleCardClick}
     >
       <div className="card-actions">
         {onEdit && (
@@ -91,9 +108,6 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
         <p className="notes">{application.notes}</p>
       )}
       
-      <div className="card-footer">
-        <span className="application-id">#{application.id}</span>
-      </div>
     </div>
   );
 };
