@@ -1,40 +1,51 @@
-import React, { useState } from 'react';
-import './SignUp.css';
-import { Link, useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import React, { useState } from "react";
+import "./SignUp.css";
+import { Link, useNavigate } from "react-router-dom";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 const SignUp = () => {
-  const [first_name, setFirstName] = useState('');
-  const [last_name, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [first_name, setFirstName] = useState("");
+  const [last_name, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!first_name || !last_name || !email || !password) {
-      setError('Please fill out all fields.');
+      setError("Please fill out all fields.");
       return;
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ first_name, last_name, email, password }),
+      const apiUrl = `${import.meta.env.VITE_API_URL}/auth/register`;
+      const requestBody = { first_name, last_name, email, password };
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody),
       });
 
+      const responseText = await response.text();
+
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Registration failed');
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = JSON.parse(responseText);
+          errorMessage = errorData.message || errorMessage;
+        } catch {}
+        throw new Error(errorMessage);
       }
 
-      navigate('/signin');
-    } catch (err: any) {
-      setError(err.message);
+      // Parse successful response
+      JSON.parse(responseText);
+      navigate("/signin");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "An error occurred");
     }
   };
 
@@ -51,7 +62,7 @@ const SignUp = () => {
             id="first_name"
             type="text"
             value={first_name}
-            onChange={e => setFirstName(e.target.value)}
+            onChange={(e) => setFirstName(e.target.value)}
             required
           />
 
@@ -60,7 +71,7 @@ const SignUp = () => {
             id="last_name"
             type="text"
             value={last_name}
-            onChange={e => setLastName(e.target.value)}
+            onChange={(e) => setLastName(e.target.value)}
             required
           />
 
@@ -69,7 +80,7 @@ const SignUp = () => {
             id="email"
             type="email"
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
 
@@ -78,7 +89,7 @@ const SignUp = () => {
             id="password"
             type="password"
             value={password}
-            onChange={e => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             required
           />
 
