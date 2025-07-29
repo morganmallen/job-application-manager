@@ -40,7 +40,7 @@ CREATE TABLE users (
   first_name VARCHAR(100) NOT NULL,
   last_name VARCHAR(100) NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
+  password VARCHAR(255) NOT NULL,
   created_at TIMESTAMP DEFAULT now(),
   updated_at TIMESTAMP DEFAULT now()
 );
@@ -187,7 +187,7 @@ CREATE TRIGGER update_application_events_updated_at BEFORE UPDATE ON application
 -- =====================================================
 
 -- Insert sample user
-INSERT INTO users (first_name, last_name, email, password_hash) VALUES
+INSERT INTO users (first_name, last_name, email, password) VALUES
 ('John', 'Doe', 'john.doe@example.com', '$2b$10$example.hash.here');
 
 -- Insert sample companies
