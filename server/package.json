@@ -22,7 +22,9 @@
     "seed": "ts-node src/seed.ts",
     "deploy:local": "chmod +x deploy-local.sh && ./deploy-local.sh",
     "init:db": "node init-db.js",
-    "deploy:render": "npm run build && npm run init:db"
+    "deploy:render": "npm run build && npm run init:db",
+    "migrate:render": "npm run init:db",
+    "migrate:db": "node migrate-db.js"
   },
   "dependencies": {
     "@nestjs/cli": "^11.0.0",

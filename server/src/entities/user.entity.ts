@@ -30,7 +30,7 @@ export class User {
 
   @ApiProperty({ description: 'Hashed user password' })
   @Column()
-  password_hash!: string;
+  password!: string;
 
   @ApiProperty({ description: 'Creation timestamp' })
   @CreateDateColumn({ name: 'created_at' })

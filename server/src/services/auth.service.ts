@@ -28,7 +28,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const isMatch = await bcrypt.compare(password, user.password_hash);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       throw new UnauthorizedException('Invalid email or password');
     }
@@ -64,11 +64,10 @@ export class AuthService {
         throw new ConflictException('User with this email already exists');
       }
 
-      const password_hash = await bcrypt.hash(dto.password, 10);
+      const hashedPassword = await bcrypt.hash(dto.password, 10);
       const user = await this.usersService.create({
         ...dto,
-        password: undefined,
-        password_hash,
+        password: hashedPassword,
       } as any);
 
       const tokenPair = await this.tokenService.generateTokenPair(

@@ -15,9 +15,9 @@ import { Request } from 'express';
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
-  @Post('register')
+  @Post('/register')
   @ApiOperation({ summary: 'Register a new user' })
   @ApiResponse({
     status: 201,
@@ -38,12 +38,11 @@ export class AuthController {
   })
   register(@Body() dto: CreateUserDto, @Req() req: Request) {
     const userAgent = req.headers['user-agent'];
-    const ipAddress =
-      (req as any).clientIp || req.ip || req.connection.remoteAddress;
+    const ipAddress = req.ip || (req.socket && req.socket.remoteAddress);
     return this.authService.register(dto, userAgent, ipAddress);
   }
 
-  @Post('login')
+  @Post('/login')
   @ApiOperation({ summary: 'Login user' })
   @ApiResponse({
     status: 200,
