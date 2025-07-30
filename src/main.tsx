@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage.tsx'
 import SignIn from './pages/SignIn.tsx'
 import SignUp from './pages/SignUp.tsx';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -13,6 +15,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/signin" element={<SignIn />} />
         <Route path="/register" element={<SignUp />} />
       </Routes>
+      <ToastContainer position="top-center" autoClose={2000} theme="colored" hideProgressBar="false" />
     </BrowserRouter>
   </StrictMode>,
 )

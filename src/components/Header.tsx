@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import logo from "../assets/NextStep-logo.svg";
 import "./Header.css";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -24,6 +25,7 @@ const Header = () => {
     localStorage.removeItem("user");
     setUser(null);
     navigate("/signin");
+    toast.success(`Session closed successfully, come back soon ${user.first_name}`);
   };
 
   return (
@@ -71,12 +73,12 @@ const Header = () => {
             </NavLink>
           ) : (
             <>
-              <span className="nav-link">👋 {user.first_name}</span>
+              <span className="nav-link">👋 Welcome {user.first_name}</span>
               <NavLink
-                            to="/signin"
-              className={({ isActive }) =>
-                `nav-link${isActive ? " active" : ""}`
-              }
+                to="/signin"
+                className={({ isActive }) =>
+                  `nav-link${isActive ? " active" : ""}`
+                }
                 onClick={handleLogout}
               >
                 Logout
