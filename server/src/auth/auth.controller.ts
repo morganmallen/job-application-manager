@@ -13,11 +13,20 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 import { Request } from 'express';
 import { ForgotPasswordDto } from 'src/dto/forgot-password.dto';
 import { ResetPasswordDto } from 'src/dto/reset-password.dto';
+import { JwtService } from '@nestjs/jwt';
+import { UsersService } from '../services/users.service'; // ajusta ruta si es necesario
+import { ConfigService } from '@nestjs/config';
+
 
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) { }
+  constructor(
+  private authService: AuthService,
+  private readonly userService: UsersService,
+  private readonly jwtService: JwtService,
+  private readonly configService: ConfigService,
+) {}
 
   @Post('/register')
   @ApiOperation({ summary: 'Register a new user' })
@@ -137,7 +146,7 @@ async forgotPassword(@Body() dto: ForgotPasswordDto) {
   const token = this.jwtService.sign(
     { email: user.email },
     {
-      secret: this.configService.get<string>(import.meta.env.VITE_RESET_PASSWORD_SECRET),
+      secret: this.configService.get<string>(process.env.RESET_PASSWORD_SECRET),
       expiresIn: '15m',
     },
   );
