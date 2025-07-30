@@ -9,29 +9,42 @@ import Footer from '../components/Footer';
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  try {
+    const response = await fetch('/auth/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+
+    if (!response.ok) throw new Error('Failed to request reset token');
+
+    const data = await response.json();
+
+    const resetLink = `${window.location.origin}/reset-password?token=${encodeURIComponent(data.token)}`;
 
     const templateParams = {
       to_email: email,
-      reset_link: `${window.location.origin}/reset-password?email=${encodeURIComponent(email)}`,
+      reset_link: resetLink,
     };
 
-    try {
-      await emailjs.send(
-        'service_u5d9f3t',
-        'template_hia7dee',
-        templateParams,
-        's_QfeXZJLKKiwrNGY'
-      );
+    await emailjs.send(
+      'service_u5d9f3t',
+      'template_hia7dee',
+      templateParams,
+      's_QfeXZJLKKiwrNGY'
+    );
 
-      toast.success('Check your email for the reset link');
-      setEmail('');
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to send reset link');
-    }
-  };
+    toast.success('Check your email for the reset link');
+    setEmail('');
+  } catch (error) {
+    console.error(error);
+    toast.error('Failed to send reset link');
+  }
+};
+
 
   return (
     <div className="app page-root">

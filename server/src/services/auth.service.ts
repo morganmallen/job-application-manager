@@ -113,7 +113,7 @@ export class AuthService {
     return this.tokenService.getUserSessions(userId);
   }
 
-  async forgotPassword(dto: ForgotPasswordDto) {
+async forgotPassword(dto: ForgotPasswordDto) {
   const { email } = dto;
 
   const user = await this.usersService.findByEmail(email);
@@ -122,13 +122,11 @@ export class AuthService {
   }
 
   const token = await this.tokenService.generatePasswordResetToken(user.id);
-  const frontendUrl = this.configService.get('FRONTEND_URL');
-  const resetLink = `${frontendUrl}/reset-password?token=${token}`;
 
-  await this.emailService.sendPasswordResetEmail(user.email, resetLink);
-
-  return { message: 'Password reset link sent' };
+  // Solo devuelve el token, no envía email
+  return { token };
 }
+
 
 async resetPassword(dto: ResetPasswordDto) {
   const payload = await this.tokenService.verifyPasswordResetToken(dto.token);
