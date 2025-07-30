@@ -105,4 +105,36 @@ export class AuthService {
   async getUserSessions(userId: string) {
     return this.tokenService.getUserSessions(userId);
   }
+
+  async resetPassword(token: string, newPassword: string) {
+  const payload = await this.tokenService.verifyPasswordResetToken(token); // Debes implementar esta lógica
+
+  const user = await this.usersService.findById(payload.userId);
+  if (!user) {
+    throw new NotFoundException('User not found');
+  }
+
+  user.password = await this.hashService.hash(newPassword); // o lo que uses para hashear
+  await this.usersService.save(user);
+
+  await this.tokenService.invalidateToken(token); // opcional: evitar reuso
+
+  return { message: 'Password reset successful' };
+}
+
+async sendPasswordResetLink(email: string) {
+  const user = await this.usersService.findByEmail(email);
+  if (!user) {
+    throw new NotFoundException('User not found');
+  }
+
+  const token = await this.tokenService.generatePasswordResetToken(user.id); // JWT o UUID
+  const resetLink = `${this.configService.get('FRONTEND_URL')}/reset-password?token=${token}`;
+
+  await this.emailService.sendPasswordResetEmail(user.email, resetLink);
+
+  return { message: 'Password reset link sent' };
+}
+
+
 }

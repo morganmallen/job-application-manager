@@ -11,6 +11,8 @@ import { LoginDto } from 'src/dto/login.dto';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { Request } from 'express';
+import { ForgotPasswordDto } from 'src/dto/forgot-password.dto';
+import { ResetPasswordDto } from 'src/dto/reset-password.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -118,4 +120,22 @@ export class AuthController {
     const user = req.user as any;
     return this.authService.getUserSessions(user.userId);
   }
+
+  @Post('reset-password')
+  @ApiOperation({ summary: 'Reset password using token' })
+  @ApiResponse({ status: 200, description: 'Password reset successful' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired token' })
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto.token, dto.password);
+  }
+
+
+  @Post('forgot-password')
+  @ApiOperation({ summary: 'Request password reset email' })
+  @ApiResponse({ status: 200, description: 'Reset link sent' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.sendPasswordResetLink(dto.email);
+  }
+
 }

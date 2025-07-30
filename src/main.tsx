@@ -14,6 +14,8 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/" element={<LandingPage />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/register" element={<SignUp />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
       <ToastContainer position="top-center" autoClose={2000} theme="colored" hideProgressBar="false" />
     </BrowserRouter>

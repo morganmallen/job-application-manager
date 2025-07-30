@@ -75,6 +75,9 @@ const SignIn = () => {
           <div className="register-link">
             Don't have an account? <Link to="/register">Register</Link>
           </div>
+          <div className="register-link">
+            Forgot your password? <Link to="/register">Reset password</Link>
+          </div>
         </form>
       </div>
       <Footer />
