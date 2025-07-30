@@ -3,6 +3,8 @@ import './SignIn.css'; // reutilizamos estilos de formularios
 import { toast } from 'react-toastify';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import './ForgotReset.css';
+
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
