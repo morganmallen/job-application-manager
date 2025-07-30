@@ -1,64 +1,53 @@
+// src/pages/ForgotPassword.tsx
 import React, { useState } from 'react';
-import './SignIn.css'; // reutilizamos estilos de formularios
+import emailjs from '@emailjs/browser';
 import { toast } from 'react-toastify';
+import './ForgotPassword.css';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import './ForgotReset.css';
-
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email) {
-      toast.error('Please enter your email address.');
-      return;
-    }
-
-    setIsSubmitting(true);
+    const templateParams = {
+      to_email: email,
+      reset_link: `${window.location.origin}/reset-password?email=${encodeURIComponent(email)}`,
+    };
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
+      await emailjs.send(
+        'service_u5d9f3t',
+        'template_hia7dee',
+        templateParams,
+        's_QfeXZJLKKiwrNGY'
+      );
 
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || 'Something went wrong');
-      }
-
-      toast.success('Password reset instructions sent to your email.');
-    } catch (error: any) {
-      toast.error(error.message);
-    } finally {
-      setIsSubmitting(false);
+      toast.success('Check your email for the reset link');
+      setEmail('');
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to send reset link');
     }
   };
 
   return (
     <div className="app page-root">
       <Header />
-      <div className="signin-page">
-        <form className="signin-form" onSubmit={handleSubmit}>
+      <div className="forgot-password-page">
+        <form onSubmit={handleSubmit} className="forgot-password-form">
           <h2>Forgot Password</h2>
-
-          <label htmlFor="email">Enter your email address</label>
+          <label htmlFor="email">Enter your email</label>
           <input
-            id="email"
             type="email"
+            id="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
           />
-
-          <button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Sending...' : 'Send Reset Link'}
-          </button>
+          <button type="submit">Send Reset Link</button>
         </form>
       </div>
       <Footer />

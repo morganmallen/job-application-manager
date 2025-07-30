@@ -6,6 +6,8 @@ import SignIn from './pages/SignIn.tsx'
 import SignUp from './pages/SignUp.tsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ForgotPassword from './pages/ForgotPassword.tsx';
+import ResetPassword from './pages/ResetPassword.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

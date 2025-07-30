@@ -3,12 +3,17 @@ import {
   UnauthorizedException,
   BadRequestException,
   ConflictException,
+  NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from './users.service';
 import { TokenService, TokenPair } from './token.service';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from '../dto/create-user.dto';
+import { ForgotPasswordDto } from '../dto/forgot-password.dto';
+import { ResetPasswordDto } from '../dto/reset-password.dto';
+import { ConfigService } from '@nestjs/config'; // asegúrate de inyectarlo
+import { EmailService } from './email.service'; // asegúrate de tenerlo
 
 @Injectable()
 export class AuthService {
@@ -16,6 +21,8 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private tokenService: TokenService,
+    private configService: ConfigService,
+    private emailService: EmailService, // debes tenerlo
   ) {}
 
   async validateUser(email: string, password: string) {
@@ -106,35 +113,37 @@ export class AuthService {
     return this.tokenService.getUserSessions(userId);
   }
 
-  async resetPassword(token: string, newPassword: string) {
-  const payload = await this.tokenService.verifyPasswordResetToken(token); // Debes implementar esta lógica
+  async forgotPassword(dto: ForgotPasswordDto) {
+  const { email } = dto;
 
-  const user = await this.usersService.findById(payload.userId);
-  if (!user) {
-    throw new NotFoundException('User not found');
-  }
-
-  user.password = await this.hashService.hash(newPassword); // o lo que uses para hashear
-  await this.usersService.save(user);
-
-  await this.tokenService.invalidateToken(token); // opcional: evitar reuso
-
-  return { message: 'Password reset successful' };
-}
-
-async sendPasswordResetLink(email: string) {
   const user = await this.usersService.findByEmail(email);
   if (!user) {
     throw new NotFoundException('User not found');
   }
 
-  const token = await this.tokenService.generatePasswordResetToken(user.id); // JWT o UUID
-  const resetLink = `${this.configService.get('FRONTEND_URL')}/reset-password?token=${token}`;
+  const token = await this.tokenService.generatePasswordResetToken(user.id);
+  const frontendUrl = this.configService.get('FRONTEND_URL');
+  const resetLink = `${frontendUrl}/reset-password?token=${token}`;
 
   await this.emailService.sendPasswordResetEmail(user.email, resetLink);
 
   return { message: 'Password reset link sent' };
 }
 
+async resetPassword(dto: ResetPasswordDto) {
+  const payload = await this.tokenService.verifyPasswordResetToken(dto.token);
+  const user = await this.usersService.findById(payload.userId);
+  if (!user) {
+    throw new NotFoundException('User not found');
+  }
+
+  const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
+  user.password = hashedPassword;
+
+  await this.usersService.save(user); // debe existir este método
+  await this.tokenService.invalidateToken(dto.token); // opcional
+
+  return { message: 'Password reset successful' };
+}
 
 }
