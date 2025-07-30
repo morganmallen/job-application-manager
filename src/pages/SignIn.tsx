@@ -40,7 +40,7 @@ const SignIn = () => {
       localStorage.setItem("user", JSON.stringify(data.user));
 
       // Redirect to dashboard or protected page
-      navigate("/board");
+      navigate("/");
     } catch (err: any) {
       setError(err.message);
     }
