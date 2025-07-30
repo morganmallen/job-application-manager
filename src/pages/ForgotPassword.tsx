@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import emailjs from '@emailjs/browser';
 import { toast } from 'react-toastify';
-import './ForgotPassword.css';
+import './ForgotReset.css';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
