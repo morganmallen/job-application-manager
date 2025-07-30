@@ -127,9 +127,24 @@ export class AuthController {
   }
 
 
-  @Post('forgot-password')
-  async forgotPassword(@Body() dto: ForgotPasswordDto) {
-    return this.authService.forgotPassword(dto);
+@Post('forgot-password')
+async forgotPassword(@Body() dto: ForgotPasswordDto) {
+  const user = await this.userService.findByEmail(dto.email);
+  if (!user) {
+    throw new NotFoundException('User not found');
   }
+
+  const token = this.jwtService.sign(
+    { email: user.email },
+    {
+      secret: this.configService.get<string>(import.meta.env.VITE_RESET_PASSWORD_SECRET),
+      expiresIn: '15m',
+    },
+  );
+
+  // En vez de enviar el email aquí, simplemente devuelves el token
+  return { token };
+}
+
 
 }
