@@ -1,4 +1,3 @@
-import React from "react";
 import logo from "../assets/NextStep-logo.svg";
 import "./Footer.css";
 
