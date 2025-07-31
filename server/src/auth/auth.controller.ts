@@ -139,19 +139,11 @@ export class AuthController {
 
   @Post('reset-password')
   async resetPassword(@Body() dto: ResetPasswordDto) {
-    return this.authService.resetPassword(dto.token, dto.newPassword);
+    return this.authService.resetPassword(dto);
   }
 
   @Post('forgot-password')
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
-    const user = await this.userService.findByEmail(dto.email);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-  @Post('forgot-password')
-  async forgotPassword(@Body() dto: ForgotPasswordDto) {
-    return this.authService.sendPasswordResetLink(dto.email);
+    return this.authService.forgotPassword(dto);
   }
-  
 }
