@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main, feature/analytics]
+    branches: [main, feature/analytics, fix/production-env-config]
   pull_request:
     branches: [main]
 
@@ -36,10 +36,15 @@ jobs:
         run: |
           npm run build
           ls -la dist/
+        env:
+          VITE_API_URL: https://jobapp-api-aryf.onrender.com/api
+          VITE_API_BASE_URL: https://jobapp-api-aryf.onrender.com
+          VITE_NODE_ENV: production
+          VITE_APP_NAME: Job Application Manager
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature/analytics'
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature/analytics' || github.ref == 'refs/heads/fix/production-env-config'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
