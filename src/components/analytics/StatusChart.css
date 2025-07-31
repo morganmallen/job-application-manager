@@ -1,0 +1,139 @@
+.status-chart {
+  width: 100%;
+}
+
+.status-chart__bars {
+  margin-bottom: 2rem;
+}
+
+.status-chart__bar-container {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.status-chart__label {
+  min-width: 100px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+  text-align: right;
+}
+
+.status-chart__bar-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+}
+
+.status-chart__bar {
+  height: 30px;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  min-width: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.status-chart__bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.status-chart__value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  min-width: 30px;
+  text-align: right;
+}
+
+.status-chart__legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.status-chart__legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.status-chart__legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-chart__legend-label {
+  color: #6c757d;
+  font-weight: 500;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .status-chart__bar-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .status-chart__label {
+    min-width: auto;
+    text-align: left;
+    font-size: 0.8rem;
+  }
+
+  .status-chart__bar-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
+  }
+
+  .status-chart__bar {
+    height: 25px;
+  }
+
+  .status-chart__value {
+    text-align: left;
+    font-size: 0.8rem;
+  }
+
+  .status-chart__legend {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .status-chart__legend {
+    grid-template-columns: 1fr;
+  }
+}

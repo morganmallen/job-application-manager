@@ -1,146 +1,190 @@
 # Job Application Manager
 
-Sistema completo de gestión de aplicaciones de trabajo con autenticación JWT robusta, refresh tokens, y gestión de sesiones.
+Complete job application management system with robust JWT authentication, refresh tokens, and session management.
 
-## 🚀 Inicio Rápido
+## 🚀 Quick Start
 
-### 1. Instalar Dependencias
+### 1. Install Dependencies
 
 ```bash
 npm install
 cd server && npm install
 ```
 
-### 2. Configurar Base de Datos
+### 2. Configure Database
 
 ```bash
-# Crear base de datos PostgreSQL
+# Create PostgreSQL database
 createdb job_application_manager
 
-# Inicializar esquema
+# Initialize schema
 cd server && npm run init:db
 ```
 
-### 3. Configurar Variables de Entorno
+### 3. Configure Environment Variables
 
 ```bash
 cd server
 cp env.example .env
 ```
 
-Editar `.env`:
+Edit `.env`:
 
 ```env
 DATABASE_URL="postgresql://username:password@localhost:5432/job_application_manager"
-JWT_SECRET="tu-super-secret-jwt-key"
+JWT_SECRET="your-super-secret-jwt-key"
 PORT=3001
 ```
 
-### 4. Iniciar Servidor
+### 4. Start Server
 
 ```bash
 cd server
 npm run start:dev
 ```
 
-El servidor estará disponible en: `http://localhost:3001`
+The server will be available at: `http://localhost:3001`
 
-## ✅ Funcionalidades Verificadas
+## ✅ Verified Features
 
-### 🔐 Autenticación Completa
+### 🔐 Complete Authentication
 
-- ✅ Registro de usuarios
-- ✅ Login con JWT tokens
-- ✅ Refresh tokens (7 días)
-- ✅ Logout con revocación
-- ✅ Blacklist de tokens
-- ✅ Gestión de sesiones múltiples
+- ✅ User registration
+- ✅ Login with JWT tokens
+- ✅ Refresh tokens (7 days)
+- ✅ Logout with revocation
+- ✅ Token blacklist
+- ✅ Multiple session management
 
-### 📊 Gestión de Datos
+### 📊 Data Management
 
-- ✅ Crear/editar/eliminar empresas
-- ✅ Crear/editar/eliminar aplicaciones
-- ✅ Crear/editar/eliminar eventos de entrevista
-- ✅ Crear/editar/eliminar notas
-- ✅ Relaciones entre entidades
+- ✅ Create/edit/delete companies
+- ✅ Create/edit/delete applications
+- ✅ Create/edit/delete interview events
+- ✅ Create/edit/delete notes
+- ✅ Entity relationships
+- ✅ Application analytics and statistics
 
-### 🛡️ Seguridad
+### 🛡️ Security
 
-- ✅ Tokens JWT de 15 minutos
-- ✅ Refresh tokens almacenados en DB
-- ✅ Revocación individual y masiva
-- ✅ Limpieza automática de tokens expirados
+- ✅ 15-minute JWT tokens
+- ✅ Refresh tokens stored in DB
+- ✅ Individual and bulk revocation
+- ✅ Automatic cleanup of expired tokens
 
-## 🧪 Probar la API
+## 🧪 Testing the API
 
-### Usar el archivo de pruebas
+### Using the test file
 
 ```bash
-# En VS Code: Abrir API_TESTING.http
-# Los tokens ya están configurados para pruebas
+# In VS Code: Open API_TESTING.http
+# Tokens are already configured for testing
 ```
 
-### Endpoints principales
+### Main endpoints
 
-- `POST /api/auth/register` - Registrar usuario
-- `POST /api/auth/login` - Iniciar sesión
-- `POST /api/auth/refresh` - Renovar token
-- `POST /api/auth/logout` - Cerrar sesión
-- `GET /api/health` - Verificar estado
+- `POST /api/auth/register` - Register user
+- `POST /api/auth/login` - Login
+- `POST /api/auth/refresh` - Refresh token
+- `POST /api/auth/logout` - Logout
+- `GET /api/health` - Check status
+- `GET /api/analytics/applications` - Get application statistics
 
-## 📋 Estructura del Proyecto
+## 📊 Analytics and Statistics
+
+### Analytics Features
+
+- **Metrics Dashboard**: Visualization of key statistics
+
+  - Total applications
+  - Success rate (Accepted + Job Offers)
+  - Response rate (Applications with response)
+  - Active applications (In progress)
+
+- **Status Distribution**: Bar chart showing:
+
+  - Applied
+  - In progress
+  - Rejected
+  - Accepted
+  - Job offers
+  - Withdrawn
+
+- **Monthly Trends**: Line chart with data from the last 6 months
+  - Temporal evolution of applications
+  - Status comparison by month
+
+### Frontend Components
+
+- `src/pages/analytics/index.tsx` - Main analytics page
+- `src/components/analytics/AnalyticsCard.tsx` - Individual metric cards
+- `src/components/analytics/StatusChart.tsx` - Status distribution chart
+- `src/components/analytics/TimelineChart.tsx` - Timeline trends chart
+
+### Backend Endpoint
+
+- `GET /api/analytics/applications` - Returns statistics and monthly data
+
+## 📋 Project Structure
 
 ```
 ├── server/                 # Backend NestJS
 │   ├── src/
-│   │   ├── auth/          # Autenticación JWT
-│   │   ├── controllers/   # Endpoints API
-│   │   ├── services/      # Lógica de negocio
-│   │   └── entities/      # Modelos de base de datos
-│   └── database/          # Esquemas SQL
+│   │   ├── auth/          # JWT Authentication
+│   │   ├── controllers/   # API Endpoints
+│   │   │   └── analytics/ # Analytics Controllers
+│   │   ├── services/      # Business Logic
+│   │   │   └── analytics/ # Analytics Services
+│   │   └── entities/      # Database Models
+│   └── database/          # SQL Schemas
 ├── src/                   # Frontend React
-└── API_TESTING.http       # Pruebas de API
+│   ├── pages/            # Application Pages
+│   │   └── analytics/    # Analytics Pages
+│   ├── components/       # Reusable Components
+│   │   └── analytics/    # Analytics Components
+│   └── assets/          # Static Resources
+└── API_TESTING.http       # API Tests
 ```
 
-## 🔧 Comandos Útiles
+## 🔧 Useful Commands
 
 ```bash
-# Desarrollo
-npm run start:dev          # Servidor con hot reload
-npm run build             # Compilar para producción
-npm run seed              # Poblar base de datos
+# Development
+npm run start:dev          # Server with hot reload
+npm run build             # Build for production
+npm run seed              # Populate database
 
-# Base de datos
-npm run init:db           # Inicializar esquema
-npm run deploy:local      # Despliegue local completo
+# Database
+npm run init:db           # Initialize schema
+npm run deploy:local      # Complete local deployment
 ```
 
-## 📝 Notas Importantes
+## 📝 Important Notes
 
-- **Tokens JWT**: Expiran en 15 minutos
-- **Refresh Tokens**: Expiran en 7 días
-- **Base de datos**: PostgreSQL requerido
-- **Puerto**: 3001 (configurable en .env)
+- **JWT Tokens**: Expire in 15 minutes
+- **Refresh Tokens**: Expire in 7 days
+- **Database**: PostgreSQL required
+- **Port**: 3001 (configurable in .env)
 
-## 🚨 Solución de Problemas
+## 🚨 Troubleshooting
 
-### Puerto en uso
+### Port in use
 
 ```bash
 lsof -ti:3001 | xargs kill -9
 ```
 
-### Base de datos no conecta
+### Database connection issues
 
 ```bash
-# Verificar PostgreSQL
+# Check PostgreSQL
 brew services start postgresql  # macOS
 sudo systemctl start postgresql # Linux
 ```
 
-### Errores de enum
+### Enum errors
 
-Los valores de estado de aplicación son:
+Application status values are:
 
 - `Applied`
 - `In progress`

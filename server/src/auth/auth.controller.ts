@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Req, UseGuards, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Req,
+  UseGuards,
+  Get,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -17,16 +25,15 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../services/users.service'; // ajusta ruta si es necesario
 import { ConfigService } from '@nestjs/config';
 
-
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(
-  private authService: AuthService,
-  private readonly userService: UsersService,
-  private readonly jwtService: JwtService,
-  private readonly configService: ConfigService,
-) {}
+    private authService: AuthService,
+    private readonly userService: UsersService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Post('/register')
   @ApiOperation({ summary: 'Register a new user' })
@@ -135,25 +142,22 @@ export class AuthController {
     return this.authService.resetPassword(dto);
   }
 
+  @Post('forgot-password')
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    const user = await this.userService.findByEmail(dto.email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
 
-@Post('forgot-password')
-async forgotPassword(@Body() dto: ForgotPasswordDto) {
-  const user = await this.userService.findByEmail(dto.email);
-  if (!user) {
-    throw new NotFoundException('User not found');
+    const token = this.jwtService.sign(
+      { email: user.email },
+      {
+        secret: this.configService.get<string>('RESET_PASSWORD_SECRET'),
+        expiresIn: '15m',
+      },
+    );
+
+    // En vez de enviar el email aquí, simplemente devuelves el token
+    return { token };
   }
-
-  const token = this.jwtService.sign(
-    { email: user.email },
-    {
-      secret: this.configService.get<string>(process.env.RESET_PASSWORD_SECRET),
-      expiresIn: '15m',
-    },
-  );
-
-  // En vez de enviar el email aquí, simplemente devuelves el token
-  return { token };
-}
-
-
 }

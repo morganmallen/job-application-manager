@@ -34,6 +34,9 @@ import { TokenBlacklist } from './entities/token-blacklist.entity';
 // Auth Module
 import { AuthModule } from './auth/auth.module';
 
+// Analytics Module
+import { AnalyticsModule } from './controllers/analytics/analytics.module';
+
 // Middleware
 import { ClientInfoMiddleware } from './middleware/client-info.middleware';
 
@@ -72,6 +75,7 @@ import { ClientInfoMiddleware } from './middleware/client-info.middleware';
       TokenBlacklist,
     ]),
     AuthModule,
+    AnalyticsModule,
   ],
   controllers: [
     AppController,

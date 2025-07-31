@@ -76,7 +76,8 @@ const SignIn = () => {
             Don't have an account? <Link to="/register">Register</Link>
           </div>
           <div className="register-link">
-            Forgot your password? <Link to="/forgot-password">Forgot password</Link>
+            Forgot your password?{" "}
+            <Link to="/forgot-password">Forgot password</Link>
           </div>
         </form>
       </div>
