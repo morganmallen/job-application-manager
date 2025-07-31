@@ -146,7 +146,7 @@ async forgotPassword(@Body() dto: ForgotPasswordDto) {
   const token = this.jwtService.sign(
     { email: user.email },
     {
-      secret: this.configService.get<string>(process.env.RESET_PASSWORD_SECRET),
+      secret: this.configService.get<string>('RESET_PASSWORD_SECRET'),
       expiresIn: '15m',
     },
   );
