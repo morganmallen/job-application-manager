@@ -12,6 +12,7 @@ const ResetPassword = () => {
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,21 +33,26 @@ const ResetPassword = () => {
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/reset-password`, {
+      setLoading(true);
+
+      const response = await fetch('https://jobapp-api-aryf.onrender.com/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, newPassword: password }),
       });
 
       if (!response.ok) {
-        throw new Error('Reset failed');
+        const err = await response.json();
+        throw new Error(err.message || 'Reset failed');
       }
 
       toast.success('Password reset successful');
       navigate('/signin');
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.error('Error resetting password');
+      toast.error(err.message || 'Error resetting password');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -72,7 +78,9 @@ const ResetPassword = () => {
             onChange={e => setConfirmPassword(e.target.value)}
             required
           />
-          <button type="submit">Reset Password</button>
+          <button type="submit" disabled={loading}>
+            {loading ? 'Resetting...' : 'Reset Password'}
+          </button>
         </form>
       </div>
       <Footer />

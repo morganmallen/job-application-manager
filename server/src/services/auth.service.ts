@@ -137,9 +137,25 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
     user.password = hashedPassword;
 
-    await this.usersService.save(user);
-    await this.tokenService.invalidateToken(dto.token); // opcional
+async sendPasswordResetLink(email: string) {
+  const user = await this.usersService.findByEmail(email);
+  if (!user) throw new NotFoundException('User not found');
 
-    return { message: 'Password reset successful' };
-  }
+  const token = await this.tokenService.generatePasswordResetToken(user.id);
+  const resetLink = `${process.env.CORS_ORIGIN}/reset-password?token=${token}`;
+
+  // The frontend will use this link to send it via EmailJS
+  return { resetLink };
+}
+
+async resetPassword(token: string, newPassword: string) {
+  const payload = await this.tokenService.verifyPasswordResetToken(token);
+  const user = await this.usersService.findById(payload.userId);
+  if (!user) throw new NotFoundException('User not found');
+
+  user.password = await bcrypt.hash(newPassword, 10);
+  await this.usersService.save(user);
+  return { message: 'Password successfully reset' };
+}
+
 }
