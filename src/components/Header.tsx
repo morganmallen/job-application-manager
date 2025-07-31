@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import logo from "../assets/NextStep-logo.svg";
 import "./Header.css";
 import { Link, NavLink, useNavigate } from "react-router-dom";
@@ -25,7 +25,9 @@ const Header = () => {
     localStorage.removeItem("user");
     setUser(null);
     navigate("/signin");
-    toast.success(`Session closed successfully, come back soon ${user.first_name}`);
+    toast.success(
+      `Session closed successfully, come back soon ${user.first_name}`
+    );
   };
 
   return (
