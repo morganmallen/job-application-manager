@@ -132,28 +132,13 @@ export class AuthController {
 
   @Post('reset-password')
   async resetPassword(@Body() dto: ResetPasswordDto) {
-    return this.authService.resetPassword(dto);
+    return this.authService.resetPassword(dto.token, dto.newPassword);
   }
 
 
-@Post('forgot-password')
-async forgotPassword(@Body() dto: ForgotPasswordDto) {
-  const user = await this.userService.findByEmail(dto.email);
-  if (!user) {
-    throw new NotFoundException('User not found');
+  @Post('forgot-password')
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.sendPasswordResetLink(dto.email);
   }
-
-  const token = this.jwtService.sign(
-    { email: user.email },
-    {
-      secret: this.configService.get<string>('RESET_PASSWORD_SECRET'),
-      expiresIn: '15m',
-    },
-  );
-
-  // En vez de enviar el email aquí, simplemente devuelves el token
-  return { token };
-}
-
-
+  
 }
