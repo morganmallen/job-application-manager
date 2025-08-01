@@ -77,7 +77,7 @@ const SignIn = () => {
           </div>
           <div className="register-link">
             Forgot your password?{" "}
-            <Link to="/forgot-password">Forgot password</Link>
+            <Link to="/forgot-password">Reset password</Link>
           </div>
         </form>
       </div>
