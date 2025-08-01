@@ -6,17 +6,17 @@ import {
   Patch,
   Param,
   Delete,
-  Query,
   HttpCode,
   HttpStatus,
   UseGuards,
+  Req,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiParam,
-  ApiQuery,
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { CompaniesService } from '../services/companies.service';
@@ -24,6 +24,7 @@ import { CreateCompanyDto } from '../dto/create-company.dto';
 import { UpdateCompanyDto } from '../dto/update-company.dto';
 import { Company } from '../entities/company.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Request } from 'express';
 
 @ApiTags('Companies')
 @ApiBearerAuth()
@@ -40,24 +41,44 @@ export class CompaniesController {
     type: Company,
   })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
-  create(@Body() createCompanyDto: CreateCompanyDto): Promise<Company> {
-    return this.companiesService.create(createCompanyDto);
+  create(
+    @Body() createCompanyDto: CreateCompanyDto,
+    @Req() req: Request,
+  ): Promise<Company> {
+    const userId = (req.user as { userId: string })?.userId;
+    if (!userId) {
+      throw new BadRequestException('User ID not found in token');
+    }
+
+    return this.companiesService.create({
+      ...createCompanyDto,
+      userId,
+    });
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all companies' })
-  @ApiQuery({
-    name: 'userId',
-    required: false,
-    description: 'Filter by user ID',
-  })
+  @ApiOperation({ summary: 'Get all companies for the authenticated user' })
   @ApiResponse({
     status: 200,
     description: 'List of companies',
     type: [Company],
   })
-  findAll(@Query('userId') userId?: string): Promise<Company[]> {
+  findAll(@Req() req: Request): Promise<Company[]> {
+    const userId = (req.user as { userId: string })?.userId;
+    if (!userId) {
+      throw new BadRequestException('User ID not found in token');
+    }
+
     return this.companiesService.findAll(userId);
+  }
+
+  @Get('search/:name')
+  @ApiOperation({ summary: 'Find company by name (case-insensitive)' })
+  @ApiParam({ name: 'name', description: 'Company name to search for' })
+  @ApiResponse({ status: 200, description: 'Company found', type: Company })
+  @ApiResponse({ status: 404, description: 'Company not found' })
+  findByName(@Param('name') name: string): Promise<Company | null> {
+    return this.companiesService.findByName(name);
   }
 
   @Get(':id')

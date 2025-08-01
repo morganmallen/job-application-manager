@@ -10,6 +10,8 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  Req,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -24,6 +26,7 @@ import { CreateApplicationDto } from '../dto/create-application.dto';
 import { UpdateApplicationDto } from '../dto/update-application.dto';
 import { Application } from '../entities/application.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Request } from 'express';
 
 @ApiTags('Applications')
 @ApiBearerAuth()
@@ -42,17 +45,21 @@ export class ApplicationsController {
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   create(
     @Body() createApplicationDto: CreateApplicationDto,
+    @Req() req: Request,
   ): Promise<Application> {
-    return this.applicationsService.create(createApplicationDto);
+    const userId = (req.user as { userId: string })?.userId;
+    if (!userId) {
+      throw new BadRequestException('User ID not found in token');
+    }
+
+    return this.applicationsService.create({
+      ...createApplicationDto,
+      userId,
+    });
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all applications' })
-  @ApiQuery({
-    name: 'userId',
-    required: false,
-    description: 'Filter by user ID',
-  })
+  @ApiOperation({ summary: 'Get all applications for the authenticated user' })
   @ApiQuery({
     name: 'companyId',
     required: false,
@@ -69,10 +76,15 @@ export class ApplicationsController {
     type: [Application],
   })
   findAll(
-    @Query('userId') userId?: string,
+    @Req() req: Request,
     @Query('companyId') companyId?: string,
     @Query('status') status?: string,
   ): Promise<Application[]> {
+    const userId = (req.user as { userId: string })?.userId;
+    if (!userId) {
+      throw new BadRequestException('User ID not found in token');
+    }
+
     return this.applicationsService.findAll(userId, companyId, status);
   }
 

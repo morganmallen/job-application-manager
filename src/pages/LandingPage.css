@@ -45,6 +45,29 @@
   flex-direction: column;
 }
 
+.landing-auth-link {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.signin-link {
+  display: inline-block;
+  background: #1d293e;
+  color: #4fc3f7;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: 0 2px 8px rgba(30, 41, 59, 0.08);
+}
+
+.signin-link:hover {
+  background: #38bdf8;
+  color: #fff;
+}
+
 /* Mobile responsive */
 @media (max-width: 768px) {
   .main-content {

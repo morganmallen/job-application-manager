@@ -55,6 +55,10 @@ export class ApplicationsService {
   async create(
     createApplicationDto: CreateApplicationDto,
   ): Promise<Application> {
+    if (!createApplicationDto.userId) {
+      throw new BadRequestException('User ID is required');
+    }
+
     const user = await this.usersRepository.findOne({
       where: { id: createApplicationDto.userId },
     });
@@ -92,8 +96,25 @@ export class ApplicationsService {
       updateData.appliedAt = new Date(updateApplicationDto.appliedAt);
     }
 
-    Object.assign(application, updateData);
-    return this.applicationsRepository.save(application);
+    if (
+      updateApplicationDto.companyId &&
+      updateApplicationDto.companyId !== application.companyId
+    ) {
+      const company = await this.companiesRepository.findOne({
+        where: { id: updateApplicationDto.companyId },
+      });
+
+      if (!company) {
+        throw new BadRequestException('Company not found');
+      }
+    }
+
+    const updateResult = await this.applicationsRepository.update(
+      id,
+      updateData,
+    );
+
+    return this.findOne(id);
   }
 
   async remove(id: string): Promise<void> {

@@ -6,10 +6,10 @@ import Footer from '../components/Footer';
 import { toast } from 'react-toastify';
 
 const SignUp = () => {
-  const [first_name, setFirstName] = useState('');
-  const [last_name, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [first_name, setFirstName] = useState("");
+  const [last_name, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
 
@@ -69,7 +69,7 @@ const SignUp = () => {
             id="first_name"
             type="text"
             value={first_name}
-            onChange={e => setFirstName(e.target.value)}
+            onChange={(e) => setFirstName(e.target.value)}
             required
           />
 
@@ -78,7 +78,7 @@ const SignUp = () => {
             id="last_name"
             type="text"
             value={last_name}
-            onChange={e => setLastName(e.target.value)}
+            onChange={(e) => setLastName(e.target.value)}
             required
           />
 
@@ -87,7 +87,7 @@ const SignUp = () => {
             id="email"
             type="email"
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
 
