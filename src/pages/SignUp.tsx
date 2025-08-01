@@ -9,28 +9,29 @@ const SignUp = () => {
   const [last_name, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!first_name || !last_name || !email || !password) {
-      setError("Please fill out all fields.");
+    if (!first_name || !last_name || !email || !password || !confirmPassword) {
+      setError('Please fill out all fields.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
       return;
     }
 
     try {
-      const apiUrl = `${import.meta.env.VITE_API_URL}/auth/register`;
-      const requestBody = { first_name, last_name, email, password };
-
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody),
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ first_name, last_name, email, password }),
       });
-
-      const responseText = await response.text();
 
       if (!response.ok) {
         let errorMessage = `HTTP error! status: ${response.status}`;
@@ -89,7 +90,16 @@ const SignUp = () => {
             id="password"
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
+            required
+          />
+
+          <label htmlFor="confirmPassword">Confirm Password</label>
+          <input
+            id="confirmPassword"
+            type="password"
+            value={confirmPassword}
+            onChange={e => setConfirmPassword(e.target.value)}
             required
           />
 

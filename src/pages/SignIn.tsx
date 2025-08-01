@@ -35,10 +35,12 @@ const SignIn = () => {
       }
 
       const data = await response.json();
-      localStorage.setItem("jwtToken", data.access_token);
+      localStorage.setItem("access_token", data.access_token); // save JWT token in local storage
+      localStorage.setItem("refresh_token", data.refresh_token);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
       // Redirect to dashboard or protected page
-      navigate("/board");
+      navigate("/");
     } catch (err: any) {
       setError(err.message);
     }
@@ -71,7 +73,11 @@ const SignIn = () => {
           />
           <button type="submit">Sign In</button>
           <div className="register-link">
-            Don't have an account? <Link to="/signup">Register</Link>
+            Don't have an account? <Link to="/register">Register</Link>
+          </div>
+          <div className="register-link">
+            Forgot your password?{" "}
+            <Link to="/forgot-password">Forgot password</Link>
           </div>
         </form>
       </div>

@@ -3,12 +3,17 @@ import {
   UnauthorizedException,
   BadRequestException,
   ConflictException,
+  NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from './users.service';
 import { TokenService, TokenPair } from './token.service';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from '../dto/create-user.dto';
+import { ForgotPasswordDto } from '../dto/forgot-password.dto';
+import { ResetPasswordDto } from '../dto/reset-password.dto';
+import { ConfigService } from '@nestjs/config'; // asegúrate de inyectarlo
+// import { EmailService } from './email.service'; // TODO: Implement email service
 
 @Injectable()
 export class AuthService {
@@ -16,6 +21,8 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private tokenService: TokenService,
+    private configService: ConfigService,
+    // private emailService: EmailService, // TODO: Implement email service
   ) {}
 
   async validateUser(email: string, password: string) {
@@ -104,5 +111,35 @@ export class AuthService {
 
   async getUserSessions(userId: string) {
     return this.tokenService.getUserSessions(userId);
+  }
+
+  async forgotPassword(dto: ForgotPasswordDto) {
+    const { email } = dto;
+
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const token = await this.tokenService.generatePasswordResetToken(user.id);
+
+    // Solo devuelve el token, no envía email
+    return { token };
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const payload = await this.tokenService.verifyPasswordResetToken(dto.token);
+    const user = await this.usersService.findOne(payload.userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
+    user.password = hashedPassword;
+
+    await this.usersService.save(user);
+    await this.tokenService.invalidateToken(dto.token); // opcional
+
+    return { message: 'Password reset successful' };
   }
 }
