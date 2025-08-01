@@ -59,6 +59,7 @@ import { ClientInfoMiddleware } from './middleware/client-info.middleware';
         ],
         synchronize: false, // Disabled to use manual schema
         logging: configService.get('NODE_ENV') === 'development',
+        ssl: { rejectUnauthorized: false },
       }),
       inject: [ConfigService],
     }),
