@@ -20,15 +20,28 @@ const Header = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("jwtToken");
-    localStorage.removeItem("user");
-    setUser(null);
-    navigate("/signin");
-    toast.success(
-      `Session closed successfully, come back soon ${user.first_name}`
-    );
-  };
+const handleLogout = async () => {
+  const refreshToken = localStorage.getItem('refreshToken');
+  try {
+    if (refreshToken) {
+      await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      });
+    }
+  } catch (error) {
+    console.error('Failed to revoke refresh token', error);
+  }
+
+  localStorage.removeItem("jwtToken");
+  localStorage.removeItem("refreshToken");
+  localStorage.removeItem("user");
+  setUser(null);
+  navigate("/signin");
+  toast.success("Session closed successfully");
+};
+
 
   return (
     <header className="header">
