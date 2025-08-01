@@ -206,13 +206,9 @@ const Board = () => {
   };
 
   // Edit application
-  const handleEditApplication = (application: { id: string; company: string; position: string; dateApplied: string; salary?: string; notes?: string }) => {
-    // Find the full application data
-    const fullApplication = applications.find(app => app.id === application.id);
-    if (fullApplication) {
-      setEditingApplication(fullApplication);
-      setIsEditModalOpen(true);
-    }
+  const handleEditApplication = (application: JobApplication) => {
+    setEditingApplication(application);
+    setIsEditModalOpen(true);
   };
 
   // Handle edit application submission
@@ -413,29 +409,16 @@ const Board = () => {
                 </div>
                 
                 <div className="column-content">
-                  {columnApplications.map(application => {
-                    const cardData = {
-                      id: application.id,
-                      company: application.company?.name || 'Unknown Company',
-                      position: application.position || 'Unknown Position',
-                      dateApplied: application.appliedAt ? new Date(application.appliedAt).toLocaleDateString() : 'Unknown Date',
-                      salary: application.salary,
-                      notes: application.notes
-                    };
-                    
-
-                    
-                    return (
-                      <ApplicationCard
-                        key={`${application.id}-${application.company?.name}-${application.updatedAt}`}
-                        application={cardData}
-                        onDragStart={() => handleDragStart(application, column.id)}
-                        onEdit={handleEditApplication}
-                        onDelete={handleDeleteApplication}
-                        isDragging={draggedItem?.id === application.id}
-                      />
-                    );
-                  })}
+                  {columnApplications.map(application => (
+                    <ApplicationCard
+                      key={`${application.id}-${application.company?.name}-${application.updatedAt}`}
+                      application={application} // Pass the application directly
+                      onDragStart={() => handleDragStart(application, column.id)}
+                      onEdit={handleEditApplication}
+                      onDelete={handleDeleteApplication}
+                      isDragging={draggedItem?.id === application.id}
+                    />
+                  ))}
                 </div>
               </div>
             );

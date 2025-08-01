@@ -1,13 +1,25 @@
 import React from 'react';
 import './ApplicationCard.css';
 
+interface Company {
+  id: string;
+  name: string;
+  website?: string;
+  location?: string;
+}
+
 interface ApplicationCardData {
   id: string;
-  company: string;
   position: string;
-  dateApplied: string;
+  status: string;
+  appliedAt: string;
   salary?: string;
   notes?: string;
+  location?: string;
+  remote: boolean;
+  company: Company;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface ApplicationCardProps {
@@ -94,8 +106,8 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
       </div>
 
       <div className="card-header">
-        <h4 className="company-name">{application.company}</h4>
-        <span className="date">{formatDate(application.dateApplied)}</span>
+        <h4 className="company-name">{application.company?.name || 'Unknown Company'}</h4>
+        <span className="date">{formatDate(application.appliedAt)}</span>
       </div>
       
       <p className="position">{application.position}</p>
