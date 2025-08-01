@@ -13,7 +13,7 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { ForgotPasswordDto } from '../dto/forgot-password.dto';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { ConfigService } from '@nestjs/config'; // asegúrate de inyectarlo
-// import { EmailService } from './email.service'; // TODO: Implement email service
+
 
 @Injectable()
 export class AuthService {
@@ -22,7 +22,6 @@ export class AuthService {
     private jwtService: JwtService,
     private tokenService: TokenService,
     private configService: ConfigService,
-    // private emailService: EmailService, // TODO: Implement email service
   ) {}
 
   async validateUser(email: string, password: string) {
@@ -70,7 +69,7 @@ export class AuthService {
       if (existingUser) {
         throw new ConflictException('User with this email already exists');
       }
-
+      // Hash the password and create the user
       const hashedPassword = await bcrypt.hash(dto.password, 10);
       const user = await this.usersService.create({
         ...dto,
@@ -123,12 +122,12 @@ export class AuthService {
 
     const token = await this.tokenService.generatePasswordResetToken(user.id);
 
-    // Solo devuelve el token, no envía email
     return { token };
   }
 
   async resetPassword(dto: ResetPasswordDto) {
     const payload = await this.tokenService.verifyPasswordResetToken(dto.token);
+    // verify the token
     const user = await this.usersService.findOne(payload.userId);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -137,6 +136,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
     user.password = hashedPassword;
 
+    // save the new password
     await this.usersService.save(user);
     await this.tokenService.invalidateToken(dto.token); // opcional
 

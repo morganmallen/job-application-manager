@@ -34,8 +34,8 @@ const ResetPassword = () => {
 
     try {
       setLoading(true);
-
-      const response = await fetch('https://jobapp-api-aryf.onrender.com/api/auth/reset-password', {
+      // Call API to reset password
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, newPassword: password }),
@@ -45,7 +45,6 @@ const ResetPassword = () => {
         const err = await response.json();
         throw new Error(err.message || 'Reset failed');
       }
-
       toast.success('Password reset successful');
       navigate('/signin');
     } catch (err: any) {

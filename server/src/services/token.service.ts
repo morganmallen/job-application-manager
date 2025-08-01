@@ -151,11 +151,7 @@ export class TokenService {
     });
   }
 
-  // --- 🔐 FORGOT / RESET PASSWORD LOGIC BELOW ---
-
-  /**
-   * Generate password reset token (JWT)
-   */
+   // Generate password reset token (JWT)
   async generatePasswordResetToken(userId: string): Promise<string> {
     return this.jwtService.sign(
       { userId },
@@ -166,9 +162,7 @@ export class TokenService {
     );
   }
 
-  /**
-   * Verify reset token and return payload (contains userId)
-   */
+   // Verify reset token and return payload (contains userId)
   async verifyPasswordResetToken(token: string): Promise<{ userId: string }> {
     try {
       return this.jwtService.verify(token, {
@@ -179,9 +173,7 @@ export class TokenService {
     }
   }
 
-  /**
-   * Optional: blacklist or invalidate reset token
-   */
+   // Optional: blacklist or invalidate reset token
   async invalidateToken(token: string): Promise<void> {
     const tokenHash = this.hashToken(token);
     await this.tokenBlacklistRepository.save({

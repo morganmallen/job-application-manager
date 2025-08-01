@@ -37,7 +37,13 @@ const SignIn = () => {
       const data = await response.json();
       localStorage.setItem("jwtToken", data.access_token); // save JWT token in local storage
       localStorage.setItem("refresh_token", data.refresh_token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      if (data.user) {
+        const { first_name, last_name, email } = data.user;
+        localStorage.setItem(
+          "user",
+          JSON.stringify({ first_name, last_name, email })
+        );
+      }
 
       // Redirect to dashboard or protected page
       navigate("/");
@@ -77,7 +83,7 @@ const SignIn = () => {
           </div>
           <div className="register-link">
             Forgot your password?{" "}
-            <Link to="/forgot-password">Forgot password</Link>
+            <Link to="/forgot-password">Reset password</Link>
           </div>
         </form>
       </div>
