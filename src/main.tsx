@@ -26,6 +26,7 @@ createRoot(document.getElementById("root")!).render(
         autoClose={2000}
         theme="colored"
         hideProgressBar={false}
+        pauseOnFocusLoss={false}
       />
     </BrowserRouter>
   </StrictMode>

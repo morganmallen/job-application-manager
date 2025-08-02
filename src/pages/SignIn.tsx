@@ -38,10 +38,10 @@ const SignIn = () => {
       localStorage.setItem("access_token", data.access_token); // save JWT token in local storage
       localStorage.setItem("refresh_token", data.refresh_token);
       if (data.user) {
-        const { first_name, last_name, email } = data.user;
+        const { first_name, last_name, email, id } = data.user;
         localStorage.setItem(
           "user",
-          JSON.stringify({ first_name, last_name, email })
+          JSON.stringify({ first_name, last_name, email, userID: id })
         );
       }
 

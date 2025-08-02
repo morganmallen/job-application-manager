@@ -3,6 +3,7 @@ import logo from "../assets/NextStep-logo.svg";
 import "./Header.css";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -28,7 +29,7 @@ const Header = () => {
   };
 
   const handleLogout = async () => {
-    const refreshToken = localStorage.getItem("refreshToken");
+    const refreshToken = localStorage.getItem("refresh_token");
     try {
       if (refreshToken) {
         await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
@@ -41,8 +42,8 @@ const Header = () => {
       console.error("Failed to revoke refresh token", error);
     }
 
-    localStorage.removeItem("jwtToken");
-    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     localStorage.removeItem("user");
     setUser(null);
     setIsDropdownOpen(false);
@@ -52,7 +53,68 @@ const Header = () => {
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+    window.addEventListener("mousedown", handleClickOutside);
+    return () => window.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleDeleteAccount = async () => {
+    const result = await Swal.fire({
+      title: "Delete account?",
+      text: "This action cannot be undone. Are you sure?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const userId = user?.userID;
+      if (!userId) {
+        toast.error("No user session found");
+        return;
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/users/${userId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to delete account");
+      }
+
+      localStorage.clear();
+      setUser(null);
+      toast.success("Account deleted successfully");
+      navigate("/signin");
+    } catch (error: any) {
+      console.error("Delete account error:", error);
+      toast.error(error.message || "Error deleting account");
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setIsDropdownOpen(false);
       }
     };
@@ -92,20 +154,24 @@ const Header = () => {
           >
             Analytics
           </NavLink>
-          
+
           <div className="mobile-user-menu">
             {!user ? (
               <>
                 <NavLink
                   to="/signin"
-                  className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
+                  className={({ isActive }) =>
+                    `nav-link${isActive ? " active" : ""}`
+                  }
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Sign In
                 </NavLink>
                 <NavLink
                   to="/signup"
-                  className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
+                  className={({ isActive }) =>
+                    `nav-link${isActive ? " active" : ""}`
+                  }
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Sign Up
@@ -115,25 +181,35 @@ const Header = () => {
               <>
                 <NavLink
                   to="/profile"
-                  className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
+                  className={({ isActive }) =>
+                    `nav-link${isActive ? " active" : ""}`
+                  }
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Profile
                 </NavLink>
-                <NavLink
-                  to="/delete-account"
-                  className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
-                  onClick={() => setIsMobileMenuOpen(false)}
+                <button
+                  className="nav-link"
+                  onClick={() => {
+                    handleDeleteAccount();
+                    setIsMobileMenuOpen(false);
+                  }}
                 >
                   Delete Account
-                </NavLink>
-                <button 
+                </button>
+
+                <button
                   className="nav-link"
                   onClick={() => {
                     handleLogout();
                     setIsMobileMenuOpen(false);
                   }}
-                  style={{background: 'none', border: 'none', width: '100%', textAlign: 'center'}}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    width: "100%",
+                    textAlign: "center",
+                  }}
                 >
                   Logout
                 </button>
@@ -143,9 +219,9 @@ const Header = () => {
         </nav>
 
         <div className="user-dropdown-wrapper desktop-only" ref={dropdownRef}>
-          <button 
-            className="nav-link user-icon" 
-            onClick={toggleDropdown} // Aquí usamos la función que ahora está definida
+          <button
+            className="nav-link user-icon"
+            onClick={toggleDropdown}
             aria-label="Toggle user menu"
           >
             👤
@@ -155,14 +231,46 @@ const Header = () => {
             <div className="user-dropdown">
               {!user ? (
                 <>
-                  <Link to="/signin" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>Sign In</Link>
-                  <Link to="/signup" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>Sign Up</Link>
+                  <Link
+                    to="/signin"
+                    className="dropdown-item"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="dropdown-item"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    Sign Up
+                  </Link>
                 </>
               ) : (
                 <>
-                  <Link to="/profile" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>Profile</Link>
-                  <Link to="/delete-account" className="dropdown-item delete" onClick={() => setIsDropdownOpen(false)}>Delete Account</Link>
-                  <button style={{fontSize: '0.9rem', fontWeight: 600}} className="dropdown-item" onClick={handleLogout}>Logout</button>
+                  <Link
+                    to="/profile"
+                    className="dropdown-item"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    Profile
+                  </Link>
+                  <button
+                    className="dropdown-item delete"
+                    onClick={() => {
+                      handleDeleteAccount();
+                      setIsDropdownOpen(false);
+                    }}
+                  >
+                    Delete Account
+                  </button>
+                  <button
+                    style={{ fontSize: "0.9rem", fontWeight: 600 }}
+                    className="dropdown-item"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </button>
                 </>
               )}
             </div>

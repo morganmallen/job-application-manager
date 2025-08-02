@@ -12,7 +12,13 @@ const ResetPassword = () => {
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+
+  const validatePassword = (pwd: string) => {
+    const hasMinLength = pwd.length >= 6;
+    const hasUpperCase = /[A-Z]/.test(pwd);
+    const hasNumber = /\d/.test(pwd);
+    return hasMinLength && hasUpperCase && hasNumber;
+  };
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,14 +33,19 @@ const ResetPassword = () => {
       return;
     }
 
+    if (!validatePassword(password)) {
+      toast.error(
+        'Password must be at least 6 characters, include one uppercase letter, and one number.'
+      );
+      return;
+    }
+
     if (!token) {
       toast.error('Missing or invalid reset token');
       return;
     }
 
     try {
-      setLoading(true);
-      // Call API to reset password
       const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -42,16 +53,14 @@ const ResetPassword = () => {
       });
 
       if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || 'Reset failed');
+        throw new Error('Reset failed');
       }
+
       toast.success('Password reset successful');
       navigate('/signin');
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      toast.error(err.message || 'Error resetting password');
-    } finally {
-      setLoading(false);
+      toast.error('Error resetting password');
     }
   };
 
@@ -77,9 +86,7 @@ const ResetPassword = () => {
             onChange={e => setConfirmPassword(e.target.value)}
             required
           />
-          <button type="submit" disabled={loading}>
-            {loading ? 'Resetting...' : 'Reset Password'}
-          </button>
+          <button type="submit">Reset Password</button>
         </form>
       </div>
       <Footer />
