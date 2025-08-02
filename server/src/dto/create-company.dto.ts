@@ -41,7 +41,11 @@ export class CreateCompanyDto {
   @IsString()
   location?: string;
 
-  @ApiProperty({ description: 'User ID who owns this company' })
+  @ApiProperty({
+    description: 'User ID who owns this company',
+    required: false,
+  })
+  @IsOptional()
   @IsString()
-  userId: string;
+  userId?: string;
 }

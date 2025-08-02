@@ -71,4 +71,12 @@ export class UpdateApplicationDto {
   @IsOptional()
   @IsBoolean()
   remote?: boolean;
+
+  @ApiProperty({
+    description: 'Company ID for this application',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  companyId?: string;
 }
