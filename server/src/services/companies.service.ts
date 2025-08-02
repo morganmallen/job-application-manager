@@ -40,7 +40,20 @@ export class CompaniesService {
     return company;
   }
 
+  async findByName(name: string): Promise<Company | null> {
+    return this.companiesRepository
+      .createQueryBuilder('company')
+      .leftJoinAndSelect('company.applications', 'applications')
+      .leftJoinAndSelect('company.user', 'user')
+      .where('LOWER(company.name) = LOWER(:name)', { name })
+      .getOne();
+  }
+
   async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
+    if (!createCompanyDto.userId) {
+      throw new BadRequestException('User ID is required');
+    }
+
     const user = await this.usersRepository.findOne({
       where: { id: createCompanyDto.userId },
     });

@@ -35,9 +35,15 @@ const SignIn = () => {
       }
 
       const data = await response.json();
-      localStorage.setItem("access_token", data.access_token); // save JWT token in local storage
+      localStorage.setItem("jwtToken", data.access_token); // save JWT token in local storage
       localStorage.setItem("refresh_token", data.refresh_token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      if (data.user) {
+        const { first_name, last_name, email, id } = data.user;
+        localStorage.setItem(
+          "user",
+          JSON.stringify({ first_name, last_name, email, userID: id })
+        );
+      }
 
       // Redirect to dashboard or protected page
       navigate("/");
@@ -49,8 +55,8 @@ const SignIn = () => {
   return (
     <div className="app page-root">
       <Header />
-      <div className="signin-page">
-        <form className="signin-form" onSubmit={handleSubmit}>
+      <div className="auth-page">
+        <form className="auth-form" onSubmit={handleSubmit}>
           <h2>Sign In</h2>
           {error && <div className="error-message">{error}</div>}
           <label htmlFor="email">Email</label>

@@ -70,9 +70,13 @@ export class CreateApplicationDto {
   @IsBoolean()
   remote?: boolean;
 
-  @ApiProperty({ description: 'User ID who owns this application' })
+  @ApiProperty({
+    description: 'User ID who owns this application',
+    required: false,
+  })
+  @IsOptional()
   @IsString()
-  userId: string;
+  userId?: string;
 
   @ApiProperty({ description: 'Company ID for this application' })
   @IsString()
