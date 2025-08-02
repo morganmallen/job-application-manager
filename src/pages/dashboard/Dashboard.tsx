@@ -2,6 +2,8 @@ import React from "react";
 import RecentActivityList from "../../components/overview/RecentActivity";
 import "./Dashboard.css";
 import StatisticsCards from "../../components/overview/StatisticsCard";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 
 const OverviewDashboard = () => {
   const stats = {
@@ -52,6 +54,7 @@ const OverviewDashboard = () => {
 
   return (
     <div className="app page-root">
+      <Header />
       <main className="main-content">
         <section className="hero-section">
           <h1>Overview Dashboard</h1>
@@ -78,6 +81,7 @@ const OverviewDashboard = () => {
           <RecentActivityList activities={recentActivities} />
         </section>
       </main>
+      <Footer />
     </div>
   );
 };
