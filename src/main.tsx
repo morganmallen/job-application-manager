@@ -10,6 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import Board from "./pages/Board.tsx";
+import Profile from "./pages/Profile";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -17,11 +18,12 @@ createRoot(document.getElementById("root")!).render(
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/signin" element={<SignIn />} />
-        <Route path="/register" element={<SignUp />} />
+        <Route path="/signup" element={<SignUp />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/board" element={<Board />} />
+        <Route path="/profile" element={<Profile />} />
 
       </Routes>
       <ToastContainer
