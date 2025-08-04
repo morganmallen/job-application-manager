@@ -112,6 +112,18 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
       
       <p className="position">{application.position}</p>
       
+      {application.company?.website && (
+        <a 
+          href={application.company.website} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="company-website"
+          onClick={(e) => e.stopPropagation()}
+        >
+          Visit Website
+        </a>
+      )}
+      
       {application.salary && (
         <p className="salary">{application.salary}</p>
       )}

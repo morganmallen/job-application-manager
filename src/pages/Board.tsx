@@ -86,6 +86,7 @@ const Board = () => {
   const handleCreateApplication = async (applicationData: {
     position: string;
     companyName: string;
+    website?: string;
     salary?: string;
     location?: string;
     notes?: string;
@@ -106,6 +107,7 @@ const Board = () => {
         },
         body: JSON.stringify({
           name: applicationData.companyName,
+          website: applicationData.website,
           location: applicationData.location,
         }),
       });
@@ -215,6 +217,7 @@ const Board = () => {
   const handleEditApplicationSubmit = async (applicationId: string, applicationData: {
     position: string;
     companyName: string;
+    website?: string;
     salary?: string;
     location?: string;
     notes?: string;
@@ -261,6 +264,7 @@ const Board = () => {
             },
             body: JSON.stringify({
               name: applicationData.companyName,
+              website: applicationData.website,
               location: applicationData.location,
             }),
           });
@@ -274,6 +278,28 @@ const Board = () => {
           companyId = newCompany.id;
         } else {
           throw new Error('Failed to search for existing company');
+        }
+      } else {
+        const websiteChanged = applicationData.website !== currentApplication.company.website;
+        const locationChanged = applicationData.location !== currentApplication.company.location;
+        
+        if (websiteChanged || locationChanged) {
+          const companyUpdateResponse = await fetch(`${import.meta.env.VITE_API_URL}/companies/${currentApplication.company.id}`, {
+            method: 'PATCH',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              website: applicationData.website,
+              location: applicationData.location,
+            }),
+          });
+
+          if (!companyUpdateResponse.ok) {
+            const errorData = await companyUpdateResponse.json();
+            throw new Error(errorData.message || 'Failed to update company');
+          }
         }
       }
       

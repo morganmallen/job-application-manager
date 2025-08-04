@@ -7,6 +7,7 @@ interface AddApplicationModalProps {
   onSubmit: (applicationData: {
     position: string;
     companyName: string;
+    website?: string;
     salary?: string;
     location?: string;
     notes?: string;
@@ -21,6 +22,7 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
 }) => {
   const [position, setPosition] = useState("");
   const [companyName, setCompanyName] = useState("");
+  const [website, setWebsite] = useState("");
   const [salary, setSalary] = useState("");
   const [location, setLocation] = useState("");
   const [notes, setNotes] = useState("");
@@ -45,6 +47,20 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
     setSalary(formatted);
   };
 
+  const formatWebsite = (url: string): string => {
+    if (!url.trim()) return url;
+    
+    let formattedUrl = url.trim();
+    
+    formattedUrl = formattedUrl.trim();
+    
+    if (!formattedUrl.match(/^https?:\/\//)) {
+      formattedUrl = `https://${formattedUrl}`;
+    }
+    
+    return formattedUrl;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -60,6 +76,7 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
       await onSubmit({
         position: position.trim(),
         companyName: companyName.trim(),
+        website: website.trim() ? formatWebsite(website) : undefined,
         salary: salary.trim() || undefined,
         location: location.trim() || undefined,
         notes: notes.trim() || undefined,
@@ -69,6 +86,7 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
       // Reset form
       setPosition("");
       setCompanyName("");
+      setWebsite("");
       setSalary("");
       setLocation("");
       setNotes("");
@@ -117,6 +135,17 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
               onChange={(e) => setCompanyName(e.target.value)}
               placeholder="e.g., Google, Microsoft, Apple"
               required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="website">Website</label>
+            <input
+              id="website"
+              type="text"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+              placeholder="e.g., netflix.com or https://company.com"
             />
           </div>
 
