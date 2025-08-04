@@ -10,6 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import Board from "./pages/Board.tsx";
+import OverviewDashboard from "./pages/dashboard/Dashboard.tsx";
 import Profile from "./pages/Profile";
 
 createRoot(document.getElementById("root")!).render(
@@ -23,8 +24,8 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/board" element={<Board />} />
+        <Route path="/dashboard" element={<OverviewDashboard />} />
         <Route path="/profile" element={<Profile />} />
-
       </Routes>
       <ToastContainer
         position="top-center"

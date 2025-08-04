@@ -46,7 +46,7 @@ const SignIn = () => {
       }
 
       // Redirect to dashboard or protected page
-      navigate("/");
+      navigate("/dashboard");
     } catch (err: any) {
       setError(err.message);
     }
