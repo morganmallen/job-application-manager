@@ -56,7 +56,7 @@ const Board = () => {
   // Fetch applications from the database
   const fetchApplications = async () => {
     try {
-      const token = localStorage.getItem('jwtToken');
+      const token = localStorage.getItem('access_token');
       if (!token) {
         setError('No authentication token found');
         return;
@@ -92,7 +92,7 @@ const Board = () => {
     remote?: boolean;
   }) => {
     try {
-      const token = localStorage.getItem('jwtToken');
+      const token = localStorage.getItem('access_token');
       if (!token) {
         throw new Error('No authentication token found');
       }
@@ -151,7 +151,7 @@ const Board = () => {
   // Update application status (drag and drop)
   const handleUpdateApplicationStatus = async (applicationId: string, newStatus: string) => {
     try {
-      const token = localStorage.getItem('jwtToken');
+      const token = localStorage.getItem('access_token');
       if (!token) {
         throw new Error('No authentication token found');
       }
@@ -183,7 +183,7 @@ const Board = () => {
   // Delete application
   const handleDeleteApplication = async (applicationId: string) => {
     try {
-      const token = localStorage.getItem('jwtToken');
+      const token = localStorage.getItem('access_token');
       if (!token) {
         throw new Error('No authentication token found');
       }
@@ -222,7 +222,7 @@ const Board = () => {
     status: string;
   }) => {
     try {
-      const token = localStorage.getItem('jwtToken');
+      const token = localStorage.getItem('access_token');
       if (!token) {
         throw new Error('No authentication token found');
       }

@@ -35,7 +35,7 @@ const SignIn = () => {
       }
 
       const data = await response.json();
-      localStorage.setItem("jwtToken", data.access_token); // save JWT token in local storage
+      localStorage.setItem("access_token", data.access_token); // save JWT token in local storage
       localStorage.setItem("refresh_token", data.refresh_token);
       if (data.user) {
         const { first_name, last_name, email, id } = data.user;
@@ -79,7 +79,7 @@ const SignIn = () => {
           />
           <button type="submit">Sign In</button>
           <div className="register-link">
-            Don't have an account? <Link to="/register">Register</Link>
+            Don't have an account? <Link to="/signup">Register</Link>
           </div>
           <div className="register-link">
             Forgot your password?{" "}
