@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import './ApplicationCard.css';
 
 interface Company {
@@ -37,12 +37,20 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
   onDelete,
   isDragging = false
 }) => {
+  const notesRef = useRef<HTMLParagraphElement>(null);
+  const [isNotesTruncated, setIsNotesTruncated] = useState(false);
+
+  useEffect(() => {
+    if (notesRef.current && application.notes) {
+      const element = notesRef.current;
+      setIsNotesTruncated(element.scrollHeight > element.clientHeight);
+    }
+  }, [application.notes]);
   const handleDragStart = () => {
     onDragStart(application);
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // Don't trigger edit if clicking on action buttons or if dragging
     if (e.target instanceof Element) {
       const target = e.target as Element;
       if (target.closest('.card-actions') || target.closest('.card-action-btn')) {
@@ -113,15 +121,18 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
       <p className="position">{application.position}</p>
       
       {application.company?.website && (
-        <a 
-          href={application.company.website} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="company-website"
-          onClick={(e) => e.stopPropagation()}
-        >
-          Visit Website
-        </a>
+        <div className="website-container">
+          <a 
+            href={application.company.website} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="company-website"
+            onClick={(e) => e.stopPropagation()}
+            title="Visit company website"
+          >
+            Visit Website
+          </a>
+        </div>
       )}
       
       {application.salary && (
@@ -129,7 +140,12 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
       )}
       
       {application.notes && (
-        <p className="notes">{application.notes}</p>
+        <p 
+          ref={notesRef}
+          className={`notes ${isNotesTruncated ? 'truncated' : ''}`}
+        >
+          {application.notes}
+        </p>
       )}
       
     </div>

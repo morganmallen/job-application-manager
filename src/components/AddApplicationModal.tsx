@@ -31,6 +31,15 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
   const [error, setError] = useState("");
 
   const formatSalary = (value: string): string => {
+    if (value.includes('-') || value.toLowerCase().includes('to')) {
+      const rangeMatch = value.match(/(\d+(?:,\d+)*)\s*[-to]\s*(\d+(?:,\d+)*)/i);
+      if (rangeMatch) {
+        const min = parseInt(rangeMatch[1].replace(/,/g, ''), 10);
+        const max = parseInt(rangeMatch[2].replace(/,/g, ''), 10);
+        return `$${min.toLocaleString()}-$${max.toLocaleString()}`;
+      }
+    }
+
     const cleanValue = value.replace(/[^\d]/g, "");
 
     if (cleanValue === "") {
@@ -43,8 +52,30 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
 
   const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    const formatted = formatSalary(value);
-    setSalary(formatted);
+    setSalary(value);
+  };
+
+  const handleSalaryBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value.trim()) {
+      const formatted = formatSalary(value);
+      setSalary(formatted);
+    }
+  };
+
+  const handleSalaryKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const value = e.currentTarget.value;
+      if (value.trim()) {
+        const formatted = formatSalary(value);
+        setSalary(formatted);
+      }
+      const nextInput = e.currentTarget.parentElement?.nextElementSibling?.querySelector('input');
+      if (nextInput) {
+        (nextInput as HTMLInputElement).focus();
+      }
+    }
   };
 
   const formatWebsite = (url: string): string => {
@@ -157,7 +188,9 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
                 type="text"
                 value={salary}
                 onChange={handleSalaryChange}
-                placeholder="e.g., $80,000"
+                onBlur={handleSalaryBlur}
+                onKeyDown={handleSalaryKeyDown}
+                placeholder="e.g., $80,000 or $50,000-$100,000"
               />
             </div>
 
