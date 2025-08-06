@@ -103,6 +103,92 @@
     transform: scale(1.02);
     transition: all 0.2s ease;
   }
+
+  .board-column.valid-drop-zone {
+    border-color: #4fc3f7;
+    box-shadow: 0 0 15px rgba(79, 195, 247, 0.4);
+  }
+
+  .board-column.invalid-drop-zone {
+    position: relative;
+  }
+
+  .board-column.invalid-drop-zone::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .board-column.valid-drop-zone.drag-over {
+    border-color: #4fc3f7;
+    box-shadow: 0 0 20px rgba(79, 195, 247, 0.6);
+    transform: scale(1.02);
+  }
+
+  .board-column.invalid-drop-zone.drag-over {
+    transform: scale(1.02);
+  }
+
+  .workflow-error-message {
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+    padding: 16px;
+    border-radius: 8px;
+    margin: 16px auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    max-width: 1400px;
+    animation: slideIn 0.3s ease-out;
+  }
+
+  .workflow-error-message .error-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .workflow-error-message .error-close-btn {
+    background: none;
+    border: none;
+    color: #fca5a5;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+  }
+
+  .workflow-error-message .error-close-btn:hover {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #fecaca;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+
   
   .application-card.dragging {
     opacity: 0.5;
@@ -236,5 +322,11 @@
     .error-message {
       flex-direction: column;
       text-align: center;
+    }
+
+    .workflow-error-message {
+      flex-direction: column;
+      text-align: center;
+      gap: 12px;
     }
   }
