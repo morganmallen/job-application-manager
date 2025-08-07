@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import "./LandingPage.css";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
-import { Link } from 'react-router-dom';
 
 function LandingPage() {
   const navigate = useNavigate();
