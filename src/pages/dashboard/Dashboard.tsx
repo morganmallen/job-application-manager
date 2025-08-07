@@ -48,14 +48,6 @@ const OverviewDashboard = () => {
     setUsername(userData.first_name || "User");
   }, [navigate, setActiveCards]);
 
-  const safeStats = stats || {
-    Applied: 0,
-    "In progress": 0,
-    "Job Offered": 0,
-    Accepted: 0,
-    Rejected: 0,
-    Withdraw: 0,
-  };
 
   const recentActivities = [
     {
