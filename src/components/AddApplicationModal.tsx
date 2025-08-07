@@ -7,6 +7,7 @@ interface AddApplicationModalProps {
   onSubmit: (applicationData: {
     position: string;
     companyName: string;
+    website?: string;
     salary?: string;
     location?: string;
     notes?: string;
@@ -21,6 +22,7 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
 }) => {
   const [position, setPosition] = useState("");
   const [companyName, setCompanyName] = useState("");
+  const [website, setWebsite] = useState("");
   const [salary, setSalary] = useState("");
   const [location, setLocation] = useState("");
   const [notes, setNotes] = useState("");
@@ -29,6 +31,15 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
   const [error, setError] = useState("");
 
   const formatSalary = (value: string): string => {
+    if (value.includes('-') || value.toLowerCase().includes('to')) {
+      const rangeMatch = value.match(/(\d+(?:,\d+)*)\s*[-to]\s*(\d+(?:,\d+)*)/i);
+      if (rangeMatch) {
+        const min = parseInt(rangeMatch[1].replace(/,/g, ''), 10);
+        const max = parseInt(rangeMatch[2].replace(/,/g, ''), 10);
+        return `$${min.toLocaleString()}-$${max.toLocaleString()}`;
+      }
+    }
+
     const cleanValue = value.replace(/[^\d]/g, "");
 
     if (cleanValue === "") {
@@ -41,8 +52,44 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
 
   const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    const formatted = formatSalary(value);
-    setSalary(formatted);
+    setSalary(value);
+  };
+
+  const handleSalaryBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value.trim()) {
+      const formatted = formatSalary(value);
+      setSalary(formatted);
+    }
+  };
+
+  const handleSalaryKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const value = e.currentTarget.value;
+      if (value.trim()) {
+        const formatted = formatSalary(value);
+        setSalary(formatted);
+      }
+      const nextInput = e.currentTarget.parentElement?.nextElementSibling?.querySelector('input');
+      if (nextInput) {
+        (nextInput as HTMLInputElement).focus();
+      }
+    }
+  };
+
+  const formatWebsite = (url: string): string => {
+    if (!url.trim()) return url;
+    
+    let formattedUrl = url.trim();
+    
+    formattedUrl = formattedUrl.trim();
+    
+    if (!formattedUrl.match(/^https?:\/\//)) {
+      formattedUrl = `https://${formattedUrl}`;
+    }
+    
+    return formattedUrl;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -60,6 +107,7 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
       await onSubmit({
         position: position.trim(),
         companyName: companyName.trim(),
+        website: website.trim() ? formatWebsite(website) : undefined,
         salary: salary.trim() || undefined,
         location: location.trim() || undefined,
         notes: notes.trim() || undefined,
@@ -69,6 +117,7 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
       // Reset form
       setPosition("");
       setCompanyName("");
+      setWebsite("");
       setSalary("");
       setLocation("");
       setNotes("");
@@ -120,6 +169,17 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
             />
           </div>
 
+          <div className="form-group">
+            <label htmlFor="website">Website</label>
+            <input
+              id="website"
+              type="text"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+              placeholder="e.g., netflix.com or https://company.com"
+            />
+          </div>
+
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="salary">Salary</label>
@@ -128,7 +188,9 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
                 type="text"
                 value={salary}
                 onChange={handleSalaryChange}
-                placeholder="e.g., $80,000"
+                onBlur={handleSalaryBlur}
+                onKeyDown={handleSalaryKeyDown}
+                placeholder="e.g., $80,000 or $50,000-$100,000"
               />
             </div>
 
