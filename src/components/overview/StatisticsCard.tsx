@@ -11,7 +11,6 @@ const StatisticsCards: React.FC<StatisticsCardProps> = ({ stats }) => {
         display: "flex",
         gap: "1rem",
         flexWrap: "wrap",
-        marginBottom: "2rem",
       }}
     >
       {stats.map((item, index) => (

@@ -133,7 +133,7 @@ const Header = () => {
 
         <nav className={`nav-menu ${isMobileMenuOpen ? "active" : ""}`}>
           <NavLink
-            to="/"
+            to={user ? "/dashboard" : "/"}
             className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
             end
             onClick={() => setIsMobileMenuOpen(false)}

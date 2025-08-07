@@ -130,7 +130,6 @@ const Board = () => {
       if (!token) {
         throw new Error("No authentication token found");
       }
-
       const companyResponse = await fetch(
         `${import.meta.env.VITE_API_URL}/companies`,
         {
@@ -153,7 +152,6 @@ const Board = () => {
       }
 
       const newCompany = await companyResponse.json();
-
       const applicationResponse = await fetch(
         `${import.meta.env.VITE_API_URL}/applications`,
         {
@@ -284,7 +282,6 @@ const Board = () => {
       }
 
       let companyId = currentApplication.company.id;
-
       if (applicationData.companyName !== currentApplication.company.name) {
         const encodedCompanyName = encodeURIComponent(
           applicationData.companyName
@@ -307,6 +304,7 @@ const Board = () => {
 
           companyId = existingCompany.id;
         } else if (existingCompanyResponse.status === 404) {
+
           const companyResponse = await fetch(
             `${import.meta.env.VITE_API_URL}/companies`,
             {
@@ -363,7 +361,6 @@ const Board = () => {
           }
         }
       }
-
       const updatePayload = {
         position: applicationData.position,
         companyId: companyId,
@@ -535,7 +532,7 @@ const Board = () => {
             </button>
           </div>
         )}
-
+        
         <div className="board-container">
           {columns.map((column) => {
             const columnApplications = getApplicationsByStatus(column.id);
@@ -592,7 +589,6 @@ const Board = () => {
         onSubmit={handleEditApplicationSubmit}
         application={editingApplication}
       />
-
       <MoveConfirmationModal
         isOpen={isMoveConfirmModalOpen}
         onClose={handleCancelMove}

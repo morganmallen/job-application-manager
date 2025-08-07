@@ -1,9 +1,11 @@
-// import React from "react";
 import RecentActivityList from "../../components/overview/RecentActivity";
 import "./Dashboard.css";
 import StatisticsCards from "../../components/overview/StatisticsCard";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
+import "./Dashboard.css";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const OverviewDashboard = () => {
   const stats = {
@@ -51,35 +53,63 @@ const OverviewDashboard = () => {
       description: "Application is waiting for response.",
     },
   ];
+  const navigate = useNavigate();
 
+  const [username, setUsername] = useState("");
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      navigate("/signin");
+    } else {
+      // Simulate fetching user data
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      setUsername(userData.first_name || "User");
+    }
+  }, [navigate]);
   return (
     <div className="app page-root">
       <Header />
       <main className="main-content">
+        <section className="greetings">
+          <h1>Welcome in, {username}!</h1>
+        </section>
         <section className="hero-section">
           <h1>Overview Dashboard</h1>
           <p>
             Track your job applications and stay updated with your latest
             progress.
           </p>
+
+          <button
+            className="go-to-board-button"
+            onClick={() => navigate("/board")}
+          >
+            Go to Board
+          </button>
         </section>
 
-        <section className="statistics-section">
-          <h2 style={{ color: "#e0e6f7", marginBottom: "1rem" }}>Statistics</h2>
-          <StatisticsCards
-            stats={Object.entries(stats).map(([key, value]) => ({
-              label: key,
-              count: value,
-            }))}
-          />
-        </section>
+        <div className="dashboard-grid">
+          <section className="statistics-section">
+            <h2 style={{ marginBottom: "1rem" }}>Statistics</h2>
+            <StatisticsCards
+              stats={Object.entries(stats).map(([key, value]) => ({
+                label: key,
+                count: value,
+              }))}
+            />
+            <button
+              className="see-more-button"
+              onClick={() => navigate("/analytics")}
+            >
+              See more...
+            </button>
+          </section>
 
-        <section className="activity-section" style={{ marginTop: "3rem" }}>
-          <h2 style={{ color: "#e0e6f7", marginBottom: "1rem" }}>
-            Recent Activity
-          </h2>
-          <RecentActivityList activities={recentActivities} />
-        </section>
+          <section className="activity-section">
+            <h2 style={{ marginBottom: "1rem" }}>Recent Activity</h2>
+            <RecentActivityList activities={recentActivities} />
+          </section>
+        </div>
       </main>
       <Footer />
     </div>
