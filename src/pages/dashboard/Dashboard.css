@@ -1,0 +1,76 @@
+/* Root container */
+.page-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Main content spacing */
+.main-content {
+  padding: 2rem;
+  flex-grow: 1;
+  /* background-color: #eaf3ff; */
+}
+
+.greetings {
+  text-align: left;
+  margin-bottom: 2rem;
+      font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+/* Section titles */
+.hero-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Responsive grid for statistics and activity */
+.dashboard-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.statistics-section,
+.activity-section {
+  flex: 1 1 48%;
+  /* background-color: #ffffff; */
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+.see-more-button, .go-to-board-button {
+  display: block;
+  margin: 1rem auto 0 auto; /* centers horizontally */
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  background: #38bdf8;
+  color:#0e172a;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.see-more-button:hover, .go-to-board-button:hover {
+  background: #0ea5e9;
+    transform: translateY(-2px);
+}
+
+/* Responsive layout */
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    flex-direction: column;
+  }
+
+  .statistics-section,
+  .activity-section {
+    flex: 1 1 100%;
+  }
+}
+
+
