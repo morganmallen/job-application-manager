@@ -54,6 +54,7 @@
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  width: 30%;
 }
 
 .see-more-button:hover, .go-to-board-button:hover {

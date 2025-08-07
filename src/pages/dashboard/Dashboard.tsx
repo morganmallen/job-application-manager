@@ -1,19 +1,60 @@
 import RecentActivityList from "../../components/overview/RecentActivity";
-import "./Dashboard.css";
 import StatisticsCards from "../../components/overview/StatisticsCard";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import "./Dashboard.css";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useAtom, useSetAtom } from "jotai";
+import { activeCardsAtom } from "../../store/dashboardAtoms";
 
 const OverviewDashboard = () => {
-  const stats = {
-    totalApplications: 42,
-    interviewsScheduled: 8,
-    offersReceived: 3,
-    rejections: 12,
-    pending: 19,
+  const [stats] = useAtom(activeCardsAtom);
+  const setActiveCards = useSetAtom(activeCardsAtom);
+  const [loading, setLoading] = useState(true);
+  const [username, setUsername] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      navigate("/signin");
+      return;
+    }
+    setLoading(true);
+    fetch(`${import.meta.env.VITE_API_URL}/applications`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        const columns = [
+          "Applied",
+          "In progress",
+          "Job Offered",
+          "Accepted",
+          "Rejected",
+          "Withdraw",
+        ];
+        const cardCountsByCategory: Record<string, number> = {};
+        columns.forEach((col) => {
+          cardCountsByCategory[col] = data.filter(
+            (app: any) => app.status === col
+          ).length;
+        });
+        setActiveCards(cardCountsByCategory);
+      })
+      .finally(() => setLoading(false));
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    setUsername(userData.first_name || "User");
+  }, [navigate, setActiveCards]);
+
+  const safeStats = stats || {
+    Applied: 0,
+    "In progress": 0,
+    "Job Offered": 0,
+    Accepted: 0,
+    Rejected: 0,
+    Withdraw: 0,
   };
 
   const recentActivities = [
@@ -53,19 +94,22 @@ const OverviewDashboard = () => {
       description: "Application is waiting for response.",
     },
   ];
-  const navigate = useNavigate();
 
-  const [username, setUsername] = useState("");
-  useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      navigate("/signin");
-    } else {
-      // Simulate fetching user data
-      const userData = JSON.parse(localStorage.getItem("user") || "{}");
-      setUsername(userData.first_name || "User");
-    }
-  }, [navigate]);
+  if (loading) {
+    return (
+      <div className="app page-root">
+        <Header />
+        <main className="main-content">
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <p className="hero-section p">Loading dashboard data...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="app page-root">
       <Header />

@@ -5,6 +5,9 @@ import Footer from "../components/Footer";
 import ApplicationCard from "../components/ApplicationCard";
 import AddApplicationModal from "../components/AddApplicationModal";
 import EditApplicationModal from "../components/EditApplicationModal";
+import { useNavigate } from "react-router-dom";
+import { useSetAtom } from "jotai";
+import { activeCardsAtom } from "../store/dashboardAtoms";
 
 interface Company {
   id: string;
@@ -56,12 +59,13 @@ const Board = () => {
     return applications.filter((app) => app.status === status);
   };
 
+  const navigate = useNavigate();
   // Fetch applications from the database
   const fetchApplications = async () => {
     try {
       const token = localStorage.getItem("access_token");
       if (!token) {
-        setError("No authentication token found");
+        navigate("/signin");
         return;
       }
 
@@ -400,6 +404,22 @@ const Board = () => {
     setDraggedItem(null);
     setDraggedFromColumn(null);
   };
+  const setActiveCards = useSetAtom(activeCardsAtom);
+
+  useEffect(() => {
+    // Count cards per column (category)
+    const cardCountsByCategory: Record<string, number> = {};
+
+    columns.forEach((column) => {
+      // Count all cards for each column
+      const cardsInColumn = applications.filter(
+        (app) => app.status === column.id
+      );
+      cardCountsByCategory[column.id] = cardsInColumn.length;
+    });
+
+    setActiveCards(cardCountsByCategory);
+  }, [applications, columns, setActiveCards]);
 
   if (loading) {
     return (
