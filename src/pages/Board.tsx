@@ -5,6 +5,7 @@ import Footer from "../components/Footer";
 import ApplicationCard from "../components/ApplicationCard";
 import AddApplicationModal from "../components/AddApplicationModal";
 import EditApplicationModal from "../components/EditApplicationModal";
+import MoveConfirmationModal from "../components/MoveConfirmationModal";
 
 interface Company {
   id: string;
@@ -40,8 +41,14 @@ const Board = () => {
     null
   );
   const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
+  const [workflowError, setWorkflowError] = useState<string | null>(null);
+  const [isMoveConfirmModalOpen, setIsMoveConfirmModalOpen] = useState(false);
+  const [pendingMove, setPendingMove] = useState<{
+    application: JobApplication;
+    fromStatus: string;
+    toStatus: string;
+  } | null>(null);
 
-  // Define column configuration based on application status
   const columns = [
     { id: "Applied", title: "Applied" },
     { id: "In progress", title: "In Progress" },
@@ -51,12 +58,31 @@ const Board = () => {
     { id: "Withdraw", title: "Withdraw" },
   ];
 
-  // Group applications by status
+  const workflowRules: Record<string, string[]> = {
+    Applied: ["In progress", "Rejected", "Withdraw"],
+    "In progress": ["Job Offered", "Rejected", "Withdraw"],
+    "Job Offered": ["Accepted", "Rejected", "Withdraw"],
+    Accepted: ["Rejected", "Withdraw"],
+    Rejected: [],
+    Withdraw: [],
+  };
+
+  const isMoveAllowed = (fromStatus: string, toStatus: string): boolean => {
+    const allowedMoves = workflowRules[fromStatus];
+    return allowedMoves ? allowedMoves.includes(toStatus) : false;
+  };
+
+  const getColumnDropZoneClass = (columnId: string): string => {
+    if (!draggedItem || !draggedFromColumn) return "";
+
+    const isAllowed = isMoveAllowed(draggedFromColumn, columnId);
+    return isAllowed ? "valid-drop-zone" : "invalid-drop-zone";
+  };
+
   const getApplicationsByStatus = (status: string) => {
     return applications.filter((app) => app.status === status);
   };
 
-  // Fetch applications from the database
   const fetchApplications = async () => {
     try {
       const token = localStorage.getItem("access_token");
@@ -90,10 +116,10 @@ const Board = () => {
     }
   };
 
-  // Create a new application
   const handleCreateApplication = async (applicationData: {
     position: string;
     companyName: string;
+    website?: string;
     salary?: string;
     location?: string;
     notes?: string;
@@ -104,8 +130,6 @@ const Board = () => {
       if (!token) {
         throw new Error("No authentication token found");
       }
-
-      // First, create the company
       const companyResponse = await fetch(
         `${import.meta.env.VITE_API_URL}/companies`,
         {
@@ -116,6 +140,7 @@ const Board = () => {
           },
           body: JSON.stringify({
             name: applicationData.companyName,
+            website: applicationData.website,
             location: applicationData.location,
           }),
         }
@@ -127,8 +152,6 @@ const Board = () => {
       }
 
       const newCompany = await companyResponse.json();
-
-      // Then, create the application
       const applicationResponse = await fetch(
         `${import.meta.env.VITE_API_URL}/applications`,
         {
@@ -164,7 +187,6 @@ const Board = () => {
     }
   };
 
-  // Update application status (drag and drop)
   const handleUpdateApplicationStatus = async (
     applicationId: string,
     newStatus: string
@@ -197,12 +219,10 @@ const Board = () => {
       );
     } catch (err: unknown) {
       console.error("Failed to update application status:", err);
-      // Revert the UI state on error
       fetchApplications();
     }
   };
 
-  // Delete application
   const handleDeleteApplication = async (applicationId: string) => {
     try {
       const token = localStorage.getItem("access_token");
@@ -230,18 +250,17 @@ const Board = () => {
     }
   };
 
-  // Edit application
   const handleEditApplication = (application: JobApplication) => {
     setEditingApplication(application);
     setIsEditModalOpen(true);
   };
 
-  // Handle edit application submission
   const handleEditApplicationSubmit = async (
     applicationId: string,
     applicationData: {
       position: string;
       companyName: string;
+      website?: string;
       salary?: string;
       location?: string;
       notes?: string;
@@ -255,7 +274,6 @@ const Board = () => {
         throw new Error("No authentication token found");
       }
 
-      // First, update the company if the name changed
       const currentApplication = applications.find(
         (app) => app.id === applicationId
       );
@@ -264,10 +282,7 @@ const Board = () => {
       }
 
       let companyId = currentApplication.company.id;
-
-      // If company name changed, check if company exists or create new one
       if (applicationData.companyName !== currentApplication.company.name) {
-        // First, try to find existing company with the same name (case-insensitive)
         const encodedCompanyName = encodeURIComponent(
           applicationData.companyName
         );
@@ -286,10 +301,10 @@ const Board = () => {
 
         if (existingCompanyResponse.ok) {
           const existingCompany = await existingCompanyResponse.json();
-          // Use existing company
+
           companyId = existingCompany.id;
         } else if (existingCompanyResponse.status === 404) {
-          // Create new company
+
           const companyResponse = await fetch(
             `${import.meta.env.VITE_API_URL}/companies`,
             {
@@ -300,6 +315,7 @@ const Board = () => {
               },
               body: JSON.stringify({
                 name: applicationData.companyName,
+                website: applicationData.website,
                 location: applicationData.location,
               }),
             }
@@ -315,9 +331,36 @@ const Board = () => {
         } else {
           throw new Error("Failed to search for existing company");
         }
-      }
+      } else {
+        const websiteChanged =
+          applicationData.website !== currentApplication.company.website;
+        const locationChanged =
+          applicationData.location !== currentApplication.company.location;
 
-      // Update the application
+        if (websiteChanged || locationChanged) {
+          const companyUpdateResponse = await fetch(
+            `${import.meta.env.VITE_API_URL}/companies/${
+              currentApplication.company.id
+            }`,
+            {
+              method: "PATCH",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                website: applicationData.website,
+                location: applicationData.location,
+              }),
+            }
+          );
+
+          if (!companyUpdateResponse.ok) {
+            const errorData = await companyUpdateResponse.json();
+            throw new Error(errorData.message || "Failed to update company");
+          }
+        }
+      }
       const updatePayload = {
         position: applicationData.position,
         companyId: companyId,
@@ -362,7 +405,6 @@ const Board = () => {
     }
   };
 
-  // Load applications on component mount
   useEffect(() => {
     fetchApplications();
   }, []);
@@ -375,11 +417,14 @@ const Board = () => {
   const handleDragOver = (e: React.DragEvent, columnId: string) => {
     e.preventDefault();
     setDragOverColumn(columnId);
+
+    setWorkflowError(null);
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOverColumn(null);
+    setWorkflowError(null);
   };
 
   const handleDrop = (e: React.DragEvent, targetColumnId: string) => {
@@ -391,14 +436,52 @@ const Board = () => {
     if (draggedFromColumn === targetColumnId) {
       setDraggedItem(null);
       setDraggedFromColumn(null);
+      setWorkflowError(null);
       return;
     }
 
-    // Update the application status in the database
-    handleUpdateApplicationStatus(draggedItem.id, targetColumnId);
+    if (!isMoveAllowed(draggedFromColumn, targetColumnId)) {
+      setWorkflowError(
+        `Cannot move from "${draggedFromColumn}" to "${targetColumnId}". Please follow the workflow progression.`
+      );
+      setDraggedItem(null);
+      setDraggedFromColumn(null);
+      return;
+    }
+
+    setWorkflowError(null);
+
+    setPendingMove({
+      application: draggedItem,
+      fromStatus: draggedFromColumn,
+      toStatus: targetColumnId,
+    });
+    setIsMoveConfirmModalOpen(true);
 
     setDraggedItem(null);
     setDraggedFromColumn(null);
+  };
+
+  const handleConfirmMove = async () => {
+    if (!pendingMove) return;
+
+    try {
+      await handleUpdateApplicationStatus(
+        pendingMove.application.id,
+        pendingMove.toStatus
+      );
+      setIsMoveConfirmModalOpen(false);
+      setPendingMove(null);
+    } catch (error) {
+      console.error("Failed to move application:", error);
+      setIsMoveConfirmModalOpen(false);
+      setPendingMove(null);
+    }
+  };
+
+  const handleCancelMove = () => {
+    setIsMoveConfirmModalOpen(false);
+    setPendingMove(null);
   };
 
   if (loading) {
@@ -437,15 +520,29 @@ const Board = () => {
           </div>
         )}
 
+        {workflowError && (
+          <div className="workflow-error-message">
+            <span className="error-icon">⚠️</span>
+            {workflowError}
+            <button
+              onClick={() => setWorkflowError(null)}
+              className="error-close-btn"
+            >
+              ×
+            </button>
+          </div>
+        )}
+        
         <div className="board-container">
           {columns.map((column) => {
             const columnApplications = getApplicationsByStatus(column.id);
+            const dropZoneClass = getColumnDropZoneClass(column.id);
             return (
               <div
                 key={column.id}
                 className={`board-column ${
                   dragOverColumn === column.id ? "drag-over" : ""
-                }`}
+                } ${dropZoneClass}`}
                 onDragOver={(e) => handleDragOver(e, column.id)}
                 onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, column.id)}
@@ -461,7 +558,7 @@ const Board = () => {
                   {columnApplications.map((application) => (
                     <ApplicationCard
                       key={`${application.id}-${application.company?.name}-${application.updatedAt}`}
-                      application={application} // Pass the application directly
+                      application={application}
                       onDragStart={() =>
                         handleDragStart(application, column.id)
                       }
@@ -491,6 +588,12 @@ const Board = () => {
         }}
         onSubmit={handleEditApplicationSubmit}
         application={editingApplication}
+      />
+      <MoveConfirmationModal
+        isOpen={isMoveConfirmModalOpen}
+        onClose={handleCancelMove}
+        onConfirm={handleConfirmMove}
+        pendingMove={pendingMove}
       />
 
       <Footer />
