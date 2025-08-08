@@ -146,4 +146,31 @@ export class AuthController {
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
     return this.authService.forgotPassword(dto);
   }
+
+  @Get('verify')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Verify access token' })
+  @ApiResponse({
+    status: 200,
+    description: 'Token is valid',
+    schema: {
+      type: 'object',
+      properties: {
+        valid: { type: 'boolean' },
+        user: { type: 'object' },
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Invalid token' })
+  verify(@Req() req: Request) {
+    const user = req.user as any;
+    return {
+      valid: true,
+      user: {
+        id: user.userId,
+        email: user.email,
+      },
+    };
+  }
 }

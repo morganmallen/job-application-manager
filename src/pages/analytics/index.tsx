@@ -49,21 +49,6 @@ const Analytics = () => {
   const fetchAnalytics = async () => {
     try {
       const token = localStorage.getItem("access_token");
-      if (!token) {
-        setCustomError({
-          message: "Authentication Required",
-          details: "Please log in to view analytics.",
-          type: "warning",
-          code: "AUTH_REQUIRED",
-          action: {
-            label: "Sign In",
-            onClick: () => (window.location.href = "/signin"),
-          },
-        });
-        setLoading(false);
-        return;
-      }
-
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/analytics/applications`,
         {

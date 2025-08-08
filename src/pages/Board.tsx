@@ -10,7 +10,6 @@ import { useSetAtom } from "jotai";
 import { activeCardsAtom } from "../store/dashboardAtoms";
 import MoveConfirmationModal from "../components/MoveConfirmationModal";
 
-
 interface Company {
   id: string;
   name: string;
@@ -92,11 +91,6 @@ const Board = () => {
   const fetchApplications = async () => {
     try {
       const token = localStorage.getItem("access_token");
-      if (!token) {
-        navigate("/signin");
-        return;
-      }
-
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/applications`,
         {
@@ -310,7 +304,6 @@ const Board = () => {
 
           companyId = existingCompany.id;
         } else if (existingCompanyResponse.status === 404) {
-
           const companyResponse = await fetch(
             `${import.meta.env.VITE_API_URL}/companies`,
             {
@@ -571,7 +564,7 @@ const Board = () => {
             </button>
           </div>
         )}
-        
+
         <div className="board-container">
           {columns.map((column) => {
             const columnApplications = getApplicationsByStatus(column.id);

@@ -23,7 +23,6 @@ const Header = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  // Función toggleDropdown que faltaba
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
@@ -109,19 +108,6 @@ const Header = () => {
     }
   };
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      ) {
-        setIsDropdownOpen(false);
-      }
-    };
-    window.addEventListener("mousedown", handleClickOutside);
-    return () => window.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   return (
     <header className="header">
       <div className="header-content">
@@ -132,28 +118,62 @@ const Header = () => {
         </div>
 
         <nav className={`nav-menu ${isMobileMenuOpen ? "active" : ""}`}>
-          <NavLink
-            to={user ? "/dashboard" : "/"}
-            className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
-            end
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            Home
-          </NavLink>
-          <NavLink
-            to="/board"
-            className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            Board
-          </NavLink>
-          <NavLink
-            to="/analytics"
-            className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            Analytics
-          </NavLink>
+          {!user ? null : ( // Non-logged users only see auth buttons - no navigation needed
+            // Logged users see Dashboard, Board, Analytics
+            <>
+              <NavLink
+                to="/dashboard"
+                className={({ isActive }) =>
+                  `nav-link${isActive ? " active" : ""}`
+                }
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Dashboard
+              </NavLink>
+              <NavLink
+                to="/board"
+                className={({ isActive }) =>
+                  `nav-link${isActive ? " active" : ""}`
+                }
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Board
+              </NavLink>
+              <NavLink
+                to="/analytics"
+                className={({ isActive }) =>
+                  `nav-link${isActive ? " active" : ""}`
+                }
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Analytics
+              </NavLink>
+            </>
+          )}
+
+          {/* Show Sign In/Sign Up buttons directly in nav for non-logged users */}
+          {!user && (
+            <>
+              <NavLink
+                to="/signin"
+                className={({ isActive }) =>
+                  `nav-link${isActive ? " active" : ""}`
+                }
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Sign In
+              </NavLink>
+              <NavLink
+                to="/signup"
+                className={({ isActive }) =>
+                  `nav-link${isActive ? " active" : ""}`
+                }
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Sign Up
+              </NavLink>
+            </>
+          )}
 
           <div className="mobile-user-menu">
             {!user ? (
@@ -197,18 +217,11 @@ const Header = () => {
                 >
                   Delete Account
                 </button>
-
                 <button
                   className="nav-link"
                   onClick={() => {
                     handleLogout();
                     setIsMobileMenuOpen(false);
-                  }}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    width: "100%",
-                    textAlign: "center",
                   }}
                 >
                   Logout
@@ -218,64 +231,42 @@ const Header = () => {
           </div>
         </nav>
 
-        <div className="user-dropdown-wrapper desktop-only" ref={dropdownRef}>
-          <button
-            className="nav-link user-icon"
-            onClick={toggleDropdown}
-            aria-label="Toggle user menu"
-          >
-            👤
-          </button>
+        {/* Only show dropdown for logged-in users */}
+        {user && (
+          <div className="user-dropdown-wrapper desktop-only" ref={dropdownRef}>
+            <button
+              className="nav-link user-icon"
+              onClick={toggleDropdown}
+              aria-label="Toggle user menu"
+            >
+              👤
+            </button>
 
-          {isDropdownOpen && (
-            <div className="user-dropdown">
-              {!user ? (
-                <>
-                  <Link
-                    to="/signin"
-                    className="dropdown-item"
-                    onClick={() => setIsDropdownOpen(false)}
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    to="/signup"
-                    className="dropdown-item"
-                    onClick={() => setIsDropdownOpen(false)}
-                  >
-                    Sign Up
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link
-                    to="/profile"
-                    className="dropdown-item"
-                    onClick={() => setIsDropdownOpen(false)}
-                  >
-                    Profile
-                  </Link>
-                  <button
-                    className="dropdown-item delete"
-                    onClick={() => {
-                      handleDeleteAccount();
-                      setIsDropdownOpen(false);
-                    }}
-                  >
-                    Delete Account
-                  </button>
-                  <button
-                    style={{ fontSize: "0.9rem", fontWeight: 600 }}
-                    className="dropdown-item"
-                    onClick={handleLogout}
-                  >
-                    Logout
-                  </button>
-                </>
-              )}
-            </div>
-          )}
-        </div>
+            {isDropdownOpen && (
+              <div className="user-dropdown">
+                <Link
+                  to="/profile"
+                  className="dropdown-item"
+                  onClick={() => setIsDropdownOpen(false)}
+                >
+                  Profile
+                </Link>
+                <button
+                  className="dropdown-item delete"
+                  onClick={() => {
+                    handleDeleteAccount();
+                    setIsDropdownOpen(false);
+                  }}
+                >
+                  Delete Account
+                </button>
+                <button className="dropdown-item" onClick={handleLogout}>
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         <button
           className="mobile-menu-toggle"

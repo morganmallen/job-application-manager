@@ -31,7 +31,12 @@ const SignIn = () => {
 
       if (!response.ok) {
         const errData = await response.json();
-        throw new Error(errData.message || "Failed to login");
+        switch (errData.statusCode) {
+          case 401:
+            throw new Error("Invalid credentials");
+          default:
+            throw new Error("Failed to login");
+        }
       }
 
       const data = await response.json();

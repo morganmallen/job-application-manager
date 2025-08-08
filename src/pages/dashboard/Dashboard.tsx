@@ -1,10 +1,10 @@
+import React, { useEffect, useState } from "react";
 import RecentActivityList from "../../components/overview/RecentActivity";
 import StatisticsCards from "../../components/overview/StatisticsCard";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import "./Dashboard.css";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 import { useAtom, useSetAtom } from "jotai";
 import { activeCardsAtom } from "../../store/dashboardAtoms";
 
@@ -16,12 +16,8 @@ const OverviewDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      navigate("/signin");
-      return;
-    }
     setLoading(true);
+    const token = localStorage.getItem("access_token");
     fetch(`${import.meta.env.VITE_API_URL}/applications`, {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -46,8 +42,7 @@ const OverviewDashboard = () => {
       .finally(() => setLoading(false));
     const userData = JSON.parse(localStorage.getItem("user") || "{}");
     setUsername(userData.first_name || "User");
-  }, [navigate, setActiveCards]);
-
+  }, [setActiveCards]);
 
   const recentActivities = [
     {
