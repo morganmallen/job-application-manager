@@ -66,6 +66,10 @@
   transition: all 0.3s ease;
   display: none;
   color: #fff;
+      width: auto;
+    margin-top: 0;
+    padding-left: 50px;
+    padding-right: 50px;
 }
 
 .mobile-menu-toggle:hover {
