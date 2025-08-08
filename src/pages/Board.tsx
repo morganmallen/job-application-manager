@@ -423,8 +423,25 @@ const Board = () => {
   const handleDragOver = (e: React.DragEvent, columnId: string) => {
     e.preventDefault();
     setDragOverColumn(columnId);
-
     setWorkflowError(null);
+
+    const container = document.querySelector('.board-container');
+    if (!container) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const scrollThreshold = 100; 
+    const maxScrollSpeed = 15; 
+
+    const distanceFromLeft = e.clientX - containerRect.left;
+    const distanceFromRight = containerRect.right - e.clientX;
+
+    if (distanceFromLeft < scrollThreshold) {
+      const speed = Math.min(maxScrollSpeed, (scrollThreshold - distanceFromLeft) / 3);
+      container.scrollLeft -= speed;
+    } else if (distanceFromRight < scrollThreshold) {
+      const speed = Math.min(maxScrollSpeed, (scrollThreshold - distanceFromRight) / 3);
+      container.scrollLeft += speed;
+    }
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
