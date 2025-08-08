@@ -6,12 +6,36 @@ import { AuthExceptionFilter } from './auth/auth-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  console.log(process.env.CORS_ORIGIN);
+  console.log('CORS_ORIGIN:', process.env.CORS_ORIGIN);
 
-  // Enable CORS
+  // Enable CORS with more robust configuration
+  const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
+
+  // Parse CORS origins - handle both single origin and comma-separated list
+  let corsOrigins: string[] | boolean;
+  if (corsOrigin === '*' || corsOrigin === 'true') {
+    corsOrigins = true; // Allow all origins
+  } else {
+    corsOrigins = corsOrigin
+      .split(',')
+      .map((origin) => origin.trim())
+      .filter((origin) => origin.length > 0);
+  }
+
   app.enableCors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+    origin: corsOrigins,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'Accept',
+      'Origin',
+    ],
+    exposedHeaders: ['Content-Range', 'X-Content-Range'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   });
 
   // Global validation pipe
@@ -54,6 +78,9 @@ async function bootstrap() {
     `📚 API Documentation available at http://localhost:${port}/api-docs`,
   );
   console.log(`🏥 Health check available at http://localhost:${port}/health`);
+  console.log(
+    `🌐 CORS configured for origins: ${Array.isArray(corsOrigins) ? corsOrigins.join(', ') : 'ALL'}`,
+  );
 }
 
 bootstrap();

@@ -27,7 +27,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ORIGIN
-        value: "*"
+        value: "https://morganmallen.github.io,https://jobapp-api-aryf.onrender.com,http://localhost:5173"
       - key: NODE_ENV
         value: production
       - key: PORT
