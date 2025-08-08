@@ -4,6 +4,7 @@ import "./Header.css";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
+import { NotificationDropdown } from "./notifications";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -98,13 +99,16 @@ const Header = () => {
         throw new Error(errorData.message || "Failed to delete account");
       }
 
-      localStorage.clear();
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      localStorage.removeItem("user");
       setUser(null);
+      setIsDropdownOpen(false);
+      navigate("/");
       toast.success("Account deleted successfully");
-      navigate("/signin");
-    } catch (error: any) {
-      console.error("Delete account error:", error);
-      toast.error(error.message || "Error deleting account");
+    } catch (error) {
+      console.error("Failed to delete account:", error);
+      toast.error("Failed to delete account");
     }
   };
 
@@ -231,40 +235,44 @@ const Header = () => {
           </div>
         </nav>
 
-        {/* Only show dropdown for logged-in users */}
+        {/* Notification dropdown and user dropdown for logged-in users */}
         {user && (
-          <div className="user-dropdown-wrapper desktop-only" ref={dropdownRef}>
-            <button
-              className="nav-link user-icon"
-              onClick={toggleDropdown}
-              aria-label="Toggle user menu"
-            >
-              👤
-            </button>
+          <div className="header-actions desktop-only">
+            <NotificationDropdown userId={user.userID || user.id} />
 
-            {isDropdownOpen && (
-              <div className="user-dropdown">
-                <Link
-                  to="/profile"
-                  className="dropdown-item"
-                  onClick={() => setIsDropdownOpen(false)}
-                >
-                  Profile
-                </Link>
-                <button
-                  className="dropdown-item delete"
-                  onClick={() => {
-                    handleDeleteAccount();
-                    setIsDropdownOpen(false);
-                  }}
-                >
-                  Delete Account
-                </button>
-                <button className="dropdown-item" onClick={handleLogout}>
-                  Logout
-                </button>
-              </div>
-            )}
+            <div className="user-dropdown-wrapper" ref={dropdownRef}>
+              <button
+                className="nav-link user-icon"
+                onClick={toggleDropdown}
+                aria-label="Toggle user menu"
+              >
+                👤
+              </button>
+
+              {isDropdownOpen && (
+                <div className="user-dropdown">
+                  <Link
+                    to="/profile"
+                    className="dropdown-item"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    Profile
+                  </Link>
+                  <button
+                    className="dropdown-item delete"
+                    onClick={() => {
+                      handleDeleteAccount();
+                      setIsDropdownOpen(false);
+                    }}
+                  >
+                    Delete Account
+                  </button>
+                  <button className="dropdown-item" onClick={handleLogout}>
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         )}
 

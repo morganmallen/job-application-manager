@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import emailjs from '@emailjs/browser';
-import { toast } from 'react-toastify';
-import './ForgotReset.css';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import React, { useState } from "react";
+import emailjs from "@emailjs/browser";
+import { toast } from "react-toastify";
+import "./ForgotReset.css";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import { Loading } from "../components/loading";
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -15,21 +16,26 @@ const ForgotPassword = () => {
 
     try {
       // Step 1: Ask for the reset token
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/forgot-password`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to obtain reset token');
+        throw new Error("Failed to obtain reset token");
       }
 
       const data = await response.json();
       const resetToken = data.token;
 
       // Step 2: Build the reset link
-      const resetLink = `http://localhost:5173/job-application-manager/reset-password?token=${encodeURIComponent(resetToken)}`;
+      const resetLink = `http://localhost:5173/job-application-manager/reset-password?token=${encodeURIComponent(
+        resetToken
+      )}`;
 
       // Step 3: Send the email with EmailJS
       const templateParams = {
@@ -38,17 +44,17 @@ const ForgotPassword = () => {
       };
 
       await emailjs.send(
-        'service_u5d9f3t',  // Service ID
-        'template_hia7dee', // Template ID
+        "service_u5d9f3t", // Service ID
+        "template_hia7dee", // Template ID
         templateParams,
-        's_QfeXZJLKKiwrNGY' // Public User ID
+        "s_QfeXZJLKKiwrNGY" // Public User ID
       );
 
-      toast.success('Check your email for the reset link');
-      setEmail('');
+      toast.success("Check your email for the reset link");
+      setEmail("");
     } catch (error) {
       console.error(error);
-      toast.error('Failed to send reset link');
+      toast.error("Failed to send reset link");
     } finally {
       setLoading(false);
     }
@@ -65,11 +71,12 @@ const ForgotPassword = () => {
             type="email"
             id="email"
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             required
+            disabled={loading}
           />
           <button type="submit" disabled={loading}>
-            {loading ? 'Sending...' : 'Send Reset Link'}
+            {loading ? <Loading size="small" message="" /> : "Send Reset Link"}
           </button>
         </form>
       </div>

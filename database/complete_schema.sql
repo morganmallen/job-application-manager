@@ -30,6 +30,17 @@ CREATE TYPE event_type AS ENUM (
   'OTHER'
 );
 
+CREATE TYPE notification_type AS ENUM (
+  'INTERVIEW_REMINDER',
+  'APPLICATION_UPDATE',
+  'SYSTEM'
+);
+
+CREATE TYPE notification_status AS ENUM (
+  'UNREAD',
+  'READ'
+);
+
 -- =====================================================
 -- CORE BUSINESS TABLES
 -- =====================================================
@@ -94,6 +105,20 @@ CREATE TABLE notes (
   created_at TIMESTAMP DEFAULT now()
 );
 
+-- NOTIFICATIONS TABLE
+CREATE TABLE notifications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  type notification_type NOT NULL DEFAULT 'INTERVIEW_REMINDER',
+  title VARCHAR(255) NOT NULL,
+  message TEXT NOT NULL,
+  status notification_status NOT NULL DEFAULT 'UNREAD',
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  event_id UUID REFERENCES application_events(id) ON DELETE CASCADE,
+  scheduled_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT now(),
+  updated_at TIMESTAMP DEFAULT now()
+);
+
 -- =====================================================
 -- AUTHENTICATION & SECURITY TABLES
 -- =====================================================
@@ -145,6 +170,13 @@ CREATE INDEX idx_application_events_scheduled_at ON application_events(scheduled
 -- Notes indexes
 CREATE INDEX idx_notes_application_id ON notes(application_id);
 CREATE INDEX idx_notes_created_at ON notes(created_at);
+
+-- Notifications indexes
+CREATE INDEX idx_notifications_user_id ON notifications(user_id);
+CREATE INDEX idx_notifications_event_id ON notifications(event_id);
+CREATE INDEX idx_notifications_type ON notifications(type);
+CREATE INDEX idx_notifications_status ON notifications(status);
+CREATE INDEX idx_notifications_scheduled_at ON notifications(scheduled_at);
 
 -- Refresh tokens indexes
 CREATE INDEX idx_refresh_tokens_user_id ON refresh_tokens(user_id);

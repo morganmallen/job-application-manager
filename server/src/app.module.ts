@@ -12,6 +12,7 @@ import { ApplicationsController } from './controllers/applications.controller';
 import { EventsController } from './controllers/events.controller';
 import { NotesController } from './controllers/notes.controller';
 import { HealthController } from './controllers/health.controller';
+import { RecentActivityController } from './controllers/recent-activity.controller';
 
 // Services
 import { UsersService } from './services/users.service';
@@ -21,6 +22,8 @@ import { EventsService } from './services/events.service';
 import { NotesService } from './services/notes.service';
 import { SeedService } from './services/seed.service';
 import { TokenCleanupService } from './services/token-cleanup.service';
+import { NotificationSchedulerService } from './services/notification-scheduler.service';
+import { RecentActivityService } from './services/recent-activity.service';
 
 // Entities
 import { User } from './entities/user.entity';
@@ -30,12 +33,16 @@ import { ApplicationEvent } from './entities/application-event.entity';
 import { Note } from './entities/note.entity';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { TokenBlacklist } from './entities/token-blacklist.entity';
+import { Notification } from './entities/notification.entity';
 
 // Auth Module
 import { AuthModule } from './auth/auth.module';
 
 // Analytics Module
 import { AnalyticsModule } from './controllers/analytics/analytics.module';
+
+// Notifications Module
+import { NotificationsModule } from './notifications/notifications.module';
 
 // Middleware
 import { ClientInfoMiddleware } from './middleware/client-info.middleware';
@@ -59,6 +66,7 @@ import { ClientInfoMiddleware } from './middleware/client-info.middleware';
           Note,
           RefreshToken,
           TokenBlacklist,
+          Notification,
         ],
         synchronize: false, // Disabled to use manual schema
         logging: configService.get('NODE_ENV') === 'development',
@@ -74,9 +82,11 @@ import { ClientInfoMiddleware } from './middleware/client-info.middleware';
       Note,
       RefreshToken,
       TokenBlacklist,
+      Notification,
     ]),
     AuthModule,
     AnalyticsModule,
+    NotificationsModule,
   ],
   controllers: [
     AppController,
@@ -86,6 +96,7 @@ import { ClientInfoMiddleware } from './middleware/client-info.middleware';
     EventsController,
     NotesController,
     HealthController,
+    RecentActivityController,
   ],
   providers: [
     AppService,
@@ -96,6 +107,8 @@ import { ClientInfoMiddleware } from './middleware/client-info.middleware';
     NotesService,
     SeedService,
     TokenCleanupService,
+    NotificationSchedulerService,
+    RecentActivityService,
   ],
 })
 export class AppModule implements NestModule {

@@ -5,7 +5,7 @@ import Footer from "../components/Footer";
 import ApplicationCard from "../components/ApplicationCard";
 import AddApplicationModal from "../components/AddApplicationModal";
 import EditApplicationModal from "../components/EditApplicationModal";
-import { useNavigate } from "react-router-dom";
+import { Loading } from "../components/loading";
 import { useSetAtom } from "jotai";
 import { activeCardsAtom } from "../store/dashboardAtoms";
 import MoveConfirmationModal from "../components/MoveConfirmationModal";
@@ -86,7 +86,6 @@ const Board = () => {
     return applications.filter((app) => app.status === status);
   };
 
-  const navigate = useNavigate();
   // Fetch applications from the database
   const fetchApplications = async () => {
     try {
@@ -521,10 +520,7 @@ const Board = () => {
       <div className="app page-root">
         <Header />
         <main className="board-main">
-          <div className="loading-container">
-            <div className="loading-spinner"></div>
-            <p>Loading applications...</p>
-          </div>
+          <Loading message="Loading applications..." fullScreen={false} />
         </main>
         <Footer />
       </div>

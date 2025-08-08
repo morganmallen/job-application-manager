@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Loading } from "../loading";
 import { ErrorHandler } from "../error-handling";
 import "./styles.css";
 
@@ -90,10 +91,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return (
       fallback || (
         <div className="app page-root">
-          <div className="loading-container">
-            <div className="loading-spinner"></div>
-            <p>Verifying authentication...</p>
-          </div>
+          <Loading message="Verifying authentication..." fullScreen={true} />
         </div>
       )
     );

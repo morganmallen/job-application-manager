@@ -9,6 +9,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { Company } from './company.entity';
 import { Application } from './application.entity';
+import { Notification } from './notification.entity';
 
 @Entity('users')
 export class User {
@@ -45,4 +46,7 @@ export class User {
 
   @OneToMany(() => Application, (application) => application.user)
   applications!: Application[];
+
+  @OneToMany(() => Notification, (notification) => notification.user)
+  notifications!: Notification[];
 }
