@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
-import './SignUp.css';
-import { Link, useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import { toast } from 'react-toastify';
+import React, { useState } from "react";
+import "./SignUp.css";
+import { Link, useNavigate } from "react-router-dom";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import { Loading } from "../components/loading";
+import { toast } from "react-toastify";
 
 const SignUp = () => {
   const [first_name, setFirstName] = useState("");
   const [last_name, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const validatePassword = (pwd: string) => {
@@ -24,36 +26,45 @@ const SignUp = () => {
     e.preventDefault();
 
     if (!first_name || !last_name || !email || !password || !confirmPassword) {
-      toast.error('Please fill out all fields.');
+      toast.error("Please fill out all fields.");
       return;
     }
 
     if (password !== confirmPassword) {
-      toast.error('Passwords do not match.');
+      toast.error("Passwords do not match.");
       return;
     }
 
     if (!validatePassword(password)) {
-      toast.error('Password must be at least 6 characters long, contain one uppercase letter, and one number.');
+      toast.error(
+        "Password must be at least 6 characters long, contain one uppercase letter, and one number."
+      );
       return;
     }
 
+    setLoading(true);
+
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ first_name, last_name, email, password }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/register`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ first_name, last_name, email, password }),
+        }
+      );
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || 'Registration failed');
+        throw new Error(data.message || "Registration failed");
       }
 
-      toast.success('Account created successfully!');
-      navigate('/signin');
+      toast.success("Account created successfully!");
+      navigate("/signin");
     } catch (err: any) {
-      toast.error(err.message || 'Something went wrong.');
+      toast.error(err.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -71,6 +82,7 @@ const SignUp = () => {
             value={first_name}
             onChange={(e) => setFirstName(e.target.value)}
             required
+            disabled={loading}
           />
 
           <label htmlFor="last_name">Last Name</label>
@@ -80,6 +92,7 @@ const SignUp = () => {
             value={last_name}
             onChange={(e) => setLastName(e.target.value)}
             required
+            disabled={loading}
           />
 
           <label htmlFor="email">Email</label>
@@ -89,6 +102,7 @@ const SignUp = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            disabled={loading}
           />
 
           <label htmlFor="password">Password</label>
@@ -96,8 +110,9 @@ const SignUp = () => {
             id="password"
             type="password"
             value={password}
-            onChange={e => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             required
+            disabled={loading}
           />
 
           <label htmlFor="confirmPassword">Confirm Password</label>
@@ -105,11 +120,14 @@ const SignUp = () => {
             id="confirmPassword"
             type="password"
             value={confirmPassword}
-            onChange={e => setConfirmPassword(e.target.value)}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             required
+            disabled={loading}
           />
 
-          <button type="submit">Register</button>
+          <button type="submit" disabled={loading}>
+            {loading ? <Loading /> : "Register"}
+          </button>
 
           <div className="login-link">
             Already have an account? <Link to="/signin">Sign In</Link>

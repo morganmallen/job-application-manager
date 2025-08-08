@@ -55,6 +55,8 @@ async function initDatabase() {
         DROP TYPE IF EXISTS application_status CASCADE;
         DROP TYPE IF EXISTS work_setup CASCADE;
         DROP TYPE IF EXISTS event_type CASCADE;
+        DROP TYPE IF EXISTS notification_type CASCADE;
+        DROP TYPE IF EXISTS notification_status CASCADE;
       `);
 
       console.log('✅ Existing schema dropped');

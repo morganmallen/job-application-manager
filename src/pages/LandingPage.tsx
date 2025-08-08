@@ -1,6 +1,5 @@
-
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./LandingPage.css";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
@@ -25,9 +24,9 @@ function LandingPage() {
             all in one place.
           </p>
           <div className="landing-auth-link">
-            <a href="/signin" className="signin-link">
-              Sign In to Your Account
-            </a>
+            <Link to="/signup" className="signin-link">
+              Create an account to get started
+            </Link>
           </div>
         </div>
       </main>

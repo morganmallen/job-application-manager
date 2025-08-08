@@ -87,34 +87,117 @@ async function migrateDatabase() {
       console.log('✅ Created event_type enum');
     }
 
-    // Check if tables exist and create them if they don't
-    const tables = [
-      'users',
-      'companies',
-      'applications',
-      'application_events',
-      'notes',
-      'refresh_tokens',
-      'token_blacklist',
-    ];
+    // Check if notification_type enum exists
+    const { rows: notificationTypeRows } = await client.query(`
+      SELECT EXISTS (
+        SELECT 1 FROM pg_type 
+        WHERE typname = 'notification_type'
+      ) as exists
+    `);
 
-    for (const table of tables) {
-      const { rows } = await client.query(
-        `
-        SELECT EXISTS (
-          SELECT 1 FROM information_schema.tables 
-          WHERE table_name = $1 AND table_schema = 'public'
-        ) as exists
-      `,
-        [table],
-      );
+    if (!notificationTypeRows[0].exists) {
+      console.log('➕ Creating notification_type enum');
+      await client.query(`
+        CREATE TYPE notification_type AS ENUM (
+          'INTERVIEW_REMINDER',
+          'APPLICATION_UPDATE',
+          'SYSTEM'
+        )
+      `);
+      console.log('✅ Created notification_type enum');
+    }
 
-      if (!rows[0].exists) {
-        console.log(`➕ Creating table: ${table}`);
-        // This would need to be more sophisticated to handle individual table creation
-        // For now, we'll just log that the table needs to be created
-        console.log(`⚠️  Table ${table} needs to be created manually`);
+    // Check if notification_status enum exists
+    const { rows: notificationStatusRows } = await client.query(`
+      SELECT EXISTS (
+        SELECT 1 FROM pg_type 
+        WHERE typname = 'notification_status'
+      ) as exists
+    `);
+
+    if (!notificationStatusRows[0].exists) {
+      console.log('➕ Creating notification_status enum');
+      await client.query(`
+        CREATE TYPE notification_status AS ENUM (
+          'UNREAD',
+          'READ'
+        )
+      `);
+      console.log('✅ Created notification_status enum');
+    }
+
+    // Check if notifications table exists
+    const { rows: notificationsTableRows } = await client.query(`
+      SELECT EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_name = 'notifications' AND table_schema = 'public'
+      ) as exists
+    `);
+
+    if (!notificationsTableRows[0].exists) {
+      console.log('➕ Creating notifications table');
+
+      try {
+        // Create notifications table
+        await client.query(`
+          CREATE TABLE notifications (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            type notification_type NOT NULL DEFAULT 'INTERVIEW_REMINDER',
+            title VARCHAR(255) NOT NULL,
+            message TEXT NOT NULL,
+            status notification_status NOT NULL DEFAULT 'UNREAD',
+            user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            event_id UUID REFERENCES application_events(id) ON DELETE CASCADE,
+            scheduled_at TIMESTAMP,
+            created_at TIMESTAMP DEFAULT now(),
+            updated_at TIMESTAMP DEFAULT now()
+          )
+        `);
+        console.log('✅ Created notifications table');
+
+        // Create indexes
+        await client.query(`
+          CREATE INDEX idx_notifications_user_id ON notifications(user_id);
+          CREATE INDEX idx_notifications_status ON notifications(status);
+          CREATE INDEX idx_notifications_type ON notifications(type);
+          CREATE INDEX idx_notifications_created_at ON notifications(created_at);
+          CREATE INDEX idx_notifications_event_id ON notifications(event_id);
+        `);
+        console.log('✅ Created notifications indexes');
+
+        // Create trigger
+        await client.query(`
+          CREATE TRIGGER update_notifications_updated_at BEFORE UPDATE ON notifications
+          FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
+        `);
+        console.log('✅ Created notifications trigger');
+      } catch (error) {
+        console.log(`⚠️  Error creating notifications table: ${error.message}`);
+        // Try to create table without foreign key constraints first
+        try {
+          await client.query(`
+            CREATE TABLE notifications (
+              id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+              type notification_type NOT NULL DEFAULT 'INTERVIEW_REMINDER',
+              title VARCHAR(255) NOT NULL,
+              message TEXT NOT NULL,
+              status notification_status NOT NULL DEFAULT 'UNREAD',
+              user_id UUID NOT NULL,
+              event_id UUID,
+              scheduled_at TIMESTAMP,
+              created_at TIMESTAMP DEFAULT now(),
+              updated_at TIMESTAMP DEFAULT now()
+            )
+          `);
+          console.log('✅ Created notifications table (without foreign keys)');
+        } catch (innerError) {
+          console.log(
+            `❌ Failed to create notifications table: ${innerError.message}`,
+          );
+        }
       }
+    } else {
+      console.log('✅ Notifications table already exists');
     }
 
     console.log('🎉 Database migration completed successfully!');

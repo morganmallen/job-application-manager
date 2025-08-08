@@ -5,11 +5,10 @@ import Footer from "../components/Footer";
 import ApplicationCard from "../components/ApplicationCard";
 import AddApplicationModal from "../components/AddApplicationModal";
 import EditApplicationModal from "../components/EditApplicationModal";
-import { useNavigate } from "react-router-dom";
+import { Loading } from "../components/loading";
 import { useSetAtom } from "jotai";
 import { activeCardsAtom } from "../store/dashboardAtoms";
 import MoveConfirmationModal from "../components/MoveConfirmationModal";
-
 
 interface Company {
   id: string;
@@ -87,16 +86,10 @@ const Board = () => {
     return applications.filter((app) => app.status === status);
   };
 
-  const navigate = useNavigate();
   // Fetch applications from the database
   const fetchApplications = async () => {
     try {
       const token = localStorage.getItem("access_token");
-      if (!token) {
-        navigate("/signin");
-        return;
-      }
-
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/applications`,
         {
@@ -310,7 +303,6 @@ const Board = () => {
 
           companyId = existingCompany.id;
         } else if (existingCompanyResponse.status === 404) {
-
           const companyResponse = await fetch(
             `${import.meta.env.VITE_API_URL}/companies`,
             {
@@ -528,10 +520,7 @@ const Board = () => {
       <div className="app page-root">
         <Header />
         <main className="board-main">
-          <div className="loading-container">
-            <div className="loading-spinner"></div>
-            <p>Loading applications...</p>
-          </div>
+          <Loading message="Loading applications..." fullScreen={false} />
         </main>
         <Footer />
       </div>
@@ -571,7 +560,7 @@ const Board = () => {
             </button>
           </div>
         )}
-        
+
         <div className="board-container">
           {columns.map((column) => {
             const columnApplications = getApplicationsByStatus(column.id);

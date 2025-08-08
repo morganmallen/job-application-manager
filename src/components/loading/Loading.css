@@ -1,0 +1,82 @@
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  background: transparent;
+}
+
+.loading-container-fullscreen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.loading-spinner {
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-spinner-small {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-top: 2px solid #4fc3f7;
+}
+
+.loading-spinner-medium {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top: 4px solid #4fc3f7;
+}
+
+.loading-spinner-large {
+  width: 60px;
+  height: 60px;
+  border: 6px solid rgba(0, 0, 0, 0.1);
+  border-top: 6px solid #4fc3f7;
+}
+
+.loading-message {
+  margin: 0;
+  font-size: 1rem;
+  color: inherit;
+  text-align: center;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Fullscreen specific styles */
+.loading-container-fullscreen .loading-spinner {
+  border-color: rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+}
+
+.loading-container-fullscreen .loading-message {
+  color: white;
+}
+
+/* Dark theme support for non-fullscreen */
+.loading-container:not(.loading-container-fullscreen) .loading-spinner {
+  border-color: rgba(0, 0, 0, 0.1);
+  border-top-color: #4fc3f7;
+}
+
+.loading-container:not(.loading-container-fullscreen) .loading-message {
+  color: #6b7280;
+}

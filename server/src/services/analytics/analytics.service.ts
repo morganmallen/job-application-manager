@@ -10,16 +10,17 @@ export class AnalyticsService {
     private applicationsRepository: Repository<Application>,
   ) {}
 
-  async getApplicationAnalytics(): Promise<any> {
-    // Get status counts
+  async getApplicationAnalytics(userId: string): Promise<any> {
+    // Get status counts for the specific user
     const statusCounts = await this.applicationsRepository
       .createQueryBuilder('application')
       .select('application.status', 'status')
       .addSelect('COUNT(*)', 'count')
+      .where('application.userId = :userId', { userId })
       .groupBy('application.status')
       .getRawMany();
 
-    // Get monthly data for the last 6 months
+    // Get monthly data for the last 6 months for the specific user
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
@@ -28,7 +29,8 @@ export class AnalyticsService {
       .select("DATE_TRUNC('month', application.appliedAt)", 'month')
       .addSelect('application.status', 'status')
       .addSelect('COUNT(*)', 'count')
-      .where('application.appliedAt >= :sixMonthsAgo', { sixMonthsAgo })
+      .where('application.userId = :userId', { userId })
+      .andWhere('application.appliedAt >= :sixMonthsAgo', { sixMonthsAgo })
       .groupBy("DATE_TRUNC('month', application.appliedAt), application.status")
       .orderBy('month', 'ASC')
       .getRawMany();

@@ -1,14 +1,17 @@
-import { useState, useEffect } from "react";
-import "./styles.css";
+import { useEffect, useState } from "react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
+import { Loading } from "../../components/loading";
+import { ErrorHandler } from "../../components/error-handling";
+import { useErrorHandler } from "../../hooks/error-handling";
+import "./styles.css";
 import {
   AnalyticsCard,
   StatusChart,
   TimelineChart,
+  EmptyAnalytics,
 } from "../../components/analytics";
-import { ErrorHandler } from "../../components";
-import { useErrorHandler } from "../../hooks";
+import AddApplicationModal from "../../components/AddApplicationModal";
 
 interface ApplicationStats {
   total: number;
@@ -40,7 +43,8 @@ const Analytics = () => {
   });
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
   const [loading, setLoading] = useState(true);
-  const { error, handleError, clearError, setCustomError } = useErrorHandler();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { error, handleError, clearError } = useErrorHandler();
 
   useEffect(() => {
     fetchAnalytics();
@@ -49,21 +53,6 @@ const Analytics = () => {
   const fetchAnalytics = async () => {
     try {
       const token = localStorage.getItem("access_token");
-      if (!token) {
-        setCustomError({
-          message: "Authentication Required",
-          details: "Please log in to view analytics.",
-          type: "warning",
-          code: "AUTH_REQUIRED",
-          action: {
-            label: "Sign In",
-            onClick: () => (window.location.href = "/signin"),
-          },
-        });
-        setLoading(false);
-        return;
-      }
-
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/analytics/applications`,
         {
@@ -95,6 +84,80 @@ const Analytics = () => {
     }
   };
 
+  const handleCreateApplication = async (applicationData: {
+    position: string;
+    companyName: string;
+    website?: string;
+    salary?: string;
+    location?: string;
+    notes?: string;
+    remote?: boolean;
+  }) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
+      // Create company first
+      const companyResponse = await fetch(
+        `${import.meta.env.VITE_API_URL}/companies`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: applicationData.companyName,
+            website: applicationData.website,
+            location: applicationData.location,
+          }),
+        }
+      );
+
+      if (!companyResponse.ok) {
+        const errorData = await companyResponse.json();
+        throw new Error(errorData.message || "Failed to create company");
+      }
+
+      const newCompany = await companyResponse.json();
+
+      // Create application
+      const applicationResponse = await fetch(
+        `${import.meta.env.VITE_API_URL}/applications`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            position: applicationData.position,
+            companyId: newCompany.id,
+            salary: applicationData.salary,
+            location: applicationData.location,
+            notes: applicationData.notes,
+            remote: applicationData.remote,
+            status: "Applied",
+            appliedAt: new Date().toISOString(),
+          }),
+        }
+      );
+
+      if (!applicationResponse.ok) {
+        const errorData = await applicationResponse.json();
+        throw new Error(errorData.message || "Failed to create application");
+      }
+
+      // Refresh analytics data
+      await fetchAnalytics();
+      setIsModalOpen(false);
+    } catch (err: any) {
+      handleError(err);
+    }
+  };
+
   const calculateSuccessRate = () => {
     if (stats.total === 0) return 0;
     return (((stats.accepted + stats.jobOffered) / stats.total) * 100).toFixed(
@@ -120,7 +183,7 @@ const Analytics = () => {
               Track your job search progress and performance
             </p>
           </div>
-          <div className="loading-spinner">Loading analytics...</div>
+          <Loading />
         </div>
         <Footer />
       </div>
@@ -141,6 +204,30 @@ const Analytics = () => {
           <ErrorHandler error={error} onDismiss={clearError} />
         </div>
         <Footer />
+      </div>
+    );
+  }
+
+  // Check if user has no applications
+  if (stats.total === 0) {
+    return (
+      <div className="app page-root">
+        <Header />
+        <div className="analytics-page">
+          <div className="analytics-header">
+            <h1 className="analytics-title">Application Analytics</h1>
+            <p className="analytics-subtitle">
+              Track your job search progress and performance
+            </p>
+          </div>
+          <EmptyAnalytics onCreateApplication={() => setIsModalOpen(true)} />
+        </div>
+        <Footer />
+        <AddApplicationModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleCreateApplication}
+        />
       </div>
     );
   }

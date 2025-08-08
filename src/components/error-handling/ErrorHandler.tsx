@@ -62,21 +62,19 @@ const ErrorHandler: React.FC<ErrorHandlerProps> = ({
           {error.details && (
             <p className="error-handler__details">{error.details}</p>
           )}
-          {error.code && (
-            <code className="error-handler__code">
-              Error Code: {error.code}
-            </code>
-          )}
         </div>
-        {onDismiss && (
-          <button
-            className="error-handler__dismiss"
-            onClick={onDismiss}
-            aria-label="Dismiss error"
-          >
-            ✕
-          </button>
-        )}
+        {onDismiss &&
+          error.code !== "AUTH_REQUIRED" &&
+          error.code !== "SESSION_EXPIRED" &&
+          error.code !== "AUTH_ERROR" && (
+            <button
+              className="error-handler__dismiss"
+              onClick={onDismiss}
+              aria-label="Dismiss error"
+            >
+              ✕
+            </button>
+          )}
       </div>
       {error.action && (
         <div className="error-handler__action">

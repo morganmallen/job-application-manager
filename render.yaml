@@ -14,7 +14,7 @@ services:
     plan: free
     nodeVersion: 18
     buildCommand: cd server && npm install && npm run build
-    startCommand: cd server && npm run init:db && npm run start:prod
+    startCommand: cd server && npm run init:db && npm run migrate:db && npm run start:prod
     envVars:
       - key: NODE_ENV
         value: production

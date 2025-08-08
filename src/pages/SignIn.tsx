@@ -3,12 +3,14 @@ import "./SignIn.css";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { Loading } from "../components/loading";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const navigate = useNavigate(); // Redirect after login
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,6 +20,7 @@ const SignIn = () => {
       return;
     }
     setError("");
+    setLoading(true);
 
     try {
       const response = await fetch(
@@ -31,11 +34,16 @@ const SignIn = () => {
 
       if (!response.ok) {
         const errData = await response.json();
-        throw new Error(errData.message || "Failed to login");
+        switch (errData.statusCode) {
+          case 401:
+            throw new Error("Invalid credentials");
+          default:
+            throw new Error("Failed to login");
+        }
       }
 
       const data = await response.json();
-      localStorage.setItem("access_token", data.access_token); // save JWT token in local storage
+      localStorage.setItem("access_token", data.access_token);
       localStorage.setItem("refresh_token", data.refresh_token);
       if (data.user) {
         const { first_name, last_name, email, id } = data.user;
@@ -45,10 +53,11 @@ const SignIn = () => {
         );
       }
 
-      // Redirect to dashboard or protected page
       navigate("/dashboard");
     } catch (err: any) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -67,6 +76,7 @@ const SignIn = () => {
             onChange={(e) => setEmail(e.target.value)}
             autoComplete="email"
             required
+            disabled={loading}
           />
           <label htmlFor="password">Password</label>
           <input
@@ -76,8 +86,11 @@ const SignIn = () => {
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
             required
+            disabled={loading}
           />
-          <button type="submit">Sign In</button>
+          <button type="submit" disabled={loading}>
+            {loading ? <Loading size="small" message="" /> : "Sign In"}
+          </button>
           <div className="register-link">
             Don't have an account? <Link to="/signup">Register</Link>
           </div>
