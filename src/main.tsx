@@ -14,6 +14,7 @@ import OverviewDashboard from "./pages/dashboard/Dashboard.tsx";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/not-found";
 import ProtectedRoute from "./components/protected-route";
+import NotificationsPage from "./pages/notifications/Notifications";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -53,6 +54,14 @@ createRoot(document.getElementById("root")!).render(
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <NotificationsPage />
             </ProtectedRoute>
           }
         />

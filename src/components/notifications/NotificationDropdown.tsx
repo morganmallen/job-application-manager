@@ -147,6 +147,13 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (isOpen) {
+      fetchNotifications();
+      fetchUnreadCount();
+    }
+  }, [isOpen]);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -243,7 +250,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = () => {
 
           {notifications.length >= 5 && (
             <div className="notification-footer">
-              <button className="view-all-btn">View all notifications</button>
+              <button className="view-all-btn" onClick={() => (window.location.href = `${window.location.origin}/job-application-manager/notifications`)}>View all notifications</button>
             </div>
           )}
         </div>
