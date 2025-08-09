@@ -1,0 +1,169 @@
+.application-events {
+  background: #1d293e;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 12px;
+  border: 1px solid #3b4261;
+}
+
+.events-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.events-header h4 {
+  margin: 0;
+  color: #e0e6f7;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.add-event-btn {
+  background: #4fc3f7;
+  color: #0e172a;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-event-btn:hover {
+  background: #29b6f6;
+  transform: translateY(-1px);
+}
+
+.add-event-form {
+  background: #0e172a;
+  border: 1px solid #3b4261;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.form-group { margin-bottom: 12px; }
+
+.form-group label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #3b4261;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: #1d293e;
+  color: #e0e6f7;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #4fc3f7;
+}
+
+.form-group textarea { resize: vertical; min-height: 60px; }
+
+.form-actions { display: flex; justify-content: flex-end; margin-top: 12px; }
+
+.submit-btn {
+  background: #4fc3f7;
+  color: #0e172a;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.submit-btn:hover { background: #29b6f6; }
+
+.events-loading,
+.no-events {
+  text-align: center;
+  padding: 20px;
+  color: white;
+  font-size: 0.875rem;
+}
+
+.events-list { display: flex; flex-direction: column; gap: 20px; }
+
+.events-subsection {
+  display: flex;
+  flex-direction: column;
+  gap: 5px; 
+  margin-bottom: 4px; 
+}
+
+.events-subheader {
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.event-item {
+  background: #0e172a;
+  border: 1px solid #3b4261;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.event-item.completed { border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+.event-item.history { border-color: #3b4261; background: rgba(148, 163, 184, 0.08); }
+.event-item.scheduled { border-color: #10b981; background: rgba(16, 185, 129, 0.08); }
+
+.event-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+
+.event-type { font-size: 0.75rem; font-weight: 600; color: #4fc3f7; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.event-status { font-size: 0.625rem; font-weight: 600; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.event-status.pending { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
+.event-status.scheduled { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+.event-status.history { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
+.event-status.completed { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+
+.event-title { margin: 0 0 8px 0; font-size: 0.875rem; font-weight: 600; color: #fff; }
+
+.event-description { margin: 0 0 8px 0; font-size: 0.75rem; color: #fff; line-height: 1.4; }
+
+.event-scheduled,
+.event-created { margin: 0; font-size: 0.625rem; color: #fff; }
+
+.add-event-form .form-row {
+  grid-template-columns: 0.6fr 1.4fr; 
+  align-items: end;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-row { grid-template-columns: 1fr; }
+  .add-event-form .form-row { grid-template-columns: 1fr; align-items: stretch; }
+  .events-header { flex-direction: column; gap: 8px; align-items: flex-start; }
+  .add-event-btn { align-self: flex-end; }
+}

@@ -46,9 +46,11 @@ export class NotificationsController {
   })
   async findAll(
     @Request() req: any,
-    @Query('limit') limit?: number,
+    @Query('limit') limit?: string,
   ): Promise<Notification[]> {
-    return this.notificationsService.findAll(req.user.id, limit);
+    const userId: string = req.user?.userId || req.user?.id; // support both shapes
+    const numericLimit = limit ? Number(limit) : undefined;
+    return this.notificationsService.findAll(userId, numericLimit);
   }
 
   @Get('unread-count')
@@ -60,7 +62,8 @@ export class NotificationsController {
     description: 'Unread count retrieved successfully',
   })
   async getUnreadCount(@Request() req: any): Promise<{ count: number }> {
-    const count = await this.notificationsService.findUnreadCount(req.user.id);
+    const userId: string = req.user?.userId || req.user?.id;
+    const count = await this.notificationsService.findUnreadCount(userId);
     return { count };
   }
 
@@ -76,7 +79,8 @@ export class NotificationsController {
     @Param('id') id: string,
     @Request() req: any,
   ): Promise<Notification> {
-    return this.notificationsService.findOne(id, req.user.id);
+    const userId: string = req.user?.userId || req.user?.id;
+    return this.notificationsService.findOne(id, userId);
   }
 
   @Post()
@@ -89,6 +93,37 @@ export class NotificationsController {
     @Body() createNotificationDto: CreateNotificationDto,
   ): Promise<Notification> {
     return this.notificationsService.create(createNotificationDto);
+  }
+
+  // Define static PATCH before parameterized PATCH routes to avoid collisions
+  @Patch('mark-all-read')
+  @ApiOperation({
+    summary: 'Mark all notifications as read for the current user',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'All notifications marked as read successfully',
+  })
+  async markAllAsRead(@Request() req: any): Promise<{ message: string }> {
+    const userId: string = req.user?.userId || req.user?.id;
+    await this.notificationsService.markAllAsRead(userId);
+    return { message: 'All notifications marked as read' };
+  }
+
+  @Patch(':id/read')
+  @ApiOperation({ summary: 'Mark a notification as read' })
+  @ApiParam({ name: 'id', description: 'Notification ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Notification marked as read successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Notification not found' })
+  async markAsRead(
+    @Param('id') id: string,
+    @Request() req: any,
+  ): Promise<Notification> {
+    const userId: string = req.user?.userId || req.user?.id;
+    return this.notificationsService.markAsRead(id, userId);
   }
 
   @Patch(':id')
@@ -104,39 +139,12 @@ export class NotificationsController {
     @Body() updateNotificationDto: UpdateNotificationDto,
     @Request() req: any,
   ): Promise<Notification> {
+    const userId: string = req.user?.userId || req.user?.id;
     return this.notificationsService.update(
       id,
-      req.user.id,
+      userId,
       updateNotificationDto,
     );
-  }
-
-  @Patch(':id/read')
-  @ApiOperation({ summary: 'Mark a notification as read' })
-  @ApiParam({ name: 'id', description: 'Notification ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Notification marked as read successfully',
-  })
-  @ApiResponse({ status: 404, description: 'Notification not found' })
-  async markAsRead(
-    @Param('id') id: string,
-    @Request() req: any,
-  ): Promise<Notification> {
-    return this.notificationsService.markAsRead(id, req.user.id);
-  }
-
-  @Patch('mark-all-read')
-  @ApiOperation({
-    summary: 'Mark all notifications as read for the current user',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'All notifications marked as read successfully',
-  })
-  async markAllAsRead(@Request() req: any): Promise<{ message: string }> {
-    await this.notificationsService.markAllAsRead(req.user.id);
-    return { message: 'All notifications marked as read' };
   }
 
   @Delete(':id')
@@ -149,6 +157,7 @@ export class NotificationsController {
   @ApiResponse({ status: 404, description: 'Notification not found' })
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id') id: string, @Request() req: any): Promise<void> {
-    return this.notificationsService.remove(id, req.user.id);
+    const userId: string = req.user?.userId || req.user?.id;
+    return this.notificationsService.remove(id, userId);
   }
 }

@@ -5,3 +5,6 @@ export { default as ErrorHandler } from "./error-handling/ErrorHandler";
 export { default as ProtectedRoute } from "./protected-route";
 export { NotificationDropdown } from "./notifications";
 export { Loading } from "./loading";
+export { default as EventCreationModal } from "./EventCreationModal";
+export { default as ApplicationEvents } from "./ApplicationEvents";
+export { default as ApplicationDetailsModal } from "./ApplicationDetailsModal";

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import './ApplicationCard.css';
 
 interface Company {
@@ -25,55 +25,52 @@ interface ApplicationCardData {
 interface ApplicationCardProps {
   application: ApplicationCardData;
   onDragStart: (application: ApplicationCardData) => void;
-  onEdit?: (application: ApplicationCardData) => void;
-  onDelete?: (applicationId: string) => void;
+  onViewDetails?: (application: ApplicationCardData) => void;
   isDragging?: boolean;
 }
 
 const ApplicationCard: React.FC<ApplicationCardProps> = ({
   application,
   onDragStart,
-  onEdit,
-  onDelete,
+  onViewDetails,
   isDragging = false
 }) => {
-  const notesRef = useRef<HTMLParagraphElement>(null);
-  const [isNotesTruncated, setIsNotesTruncated] = useState(false);
+  const [eventCount, setEventCount] = useState(0);
+
+  const fetchEventCount = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/events?applicationId=${application.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const events = await response.json();
+        setEventCount(events.length);
+      }
+    } catch (error) {
+      console.error("Failed to fetch event count:", error);
+    }
+  }, [application.id]);
 
   useEffect(() => {
-    if (notesRef.current && application.notes) {
-      const element = notesRef.current;
-      setIsNotesTruncated(element.scrollHeight > element.clientHeight);
+    if (application.status === "In progress") {
+      fetchEventCount();
     }
-  }, [application.notes]);
+  }, [application.status, fetchEventCount]);
+
   const handleDragStart = () => {
     onDragStart(application);
   };
 
-  const handleCardClick = (e: React.MouseEvent) => {
-    if (e.target instanceof Element) {
-      const target = e.target as Element;
-      if (target.closest('.card-actions') || target.closest('.card-action-btn')) {
-        return;
-      }
-    }
-    
-    if (onEdit) {
-      onEdit(application);
-    }
-  };
-
-  const handleEdit = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onEdit) {
-      onEdit(application);
-    }
-  };
-
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onDelete) {
-      onDelete(application.id);
+  const handleCardClick = () => {
+    if (onViewDetails) {
+      onViewDetails(application);
     }
   };
 
@@ -92,62 +89,28 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
       onDragStart={handleDragStart}
       onClick={handleCardClick}
     >
-      <div className="card-actions">
-        {onEdit && (
-          <button 
-            className="card-action-btn edit-btn" 
-            onClick={handleEdit}
-            title="Edit application"
-          >
-            ✏️
-          </button>
-        )}
-        {onDelete && (
-          <button 
-            className="card-action-btn delete-btn" 
-            onClick={handleDelete}
-            title="Delete application"
-          >
-            🗑️
-          </button>
-        )}
-      </div>
-
-      <div className="card-header">
-        <h4 className="company-name">{application.company?.name || 'Unknown Company'}</h4>
-        <span className="date">{formatDate(application.appliedAt)}</span>
-      </div>
-      
-      <p className="position">{application.position}</p>
-      
-      {application.company?.website && (
-        <div className="website-container">
-          <a 
-            href={application.company.website} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="company-website"
-            onClick={(e) => e.stopPropagation()}
-            title="Visit company website"
-          >
-            Visit Website
-          </a>
+      <div className="card-content">
+        <div className="position-header">
+          <h3 className="position">{application.position}</h3>
+          <div className="position-actions">
+            <span className="date">{formatDate(application.appliedAt)}</span>
+          </div>
         </div>
-      )}
-      
-      {application.salary && (
-        <p className="salary">{application.salary}</p>
-      )}
-      
-      {application.notes && (
-        <p 
-          ref={notesRef}
-          className={`notes ${isNotesTruncated ? 'truncated' : ''}`}
-        >
-          {application.notes}
-        </p>
-      )}
-      
+        
+        <h4 className="company-name">{application.company?.name || 'Unknown Company'}</h4>
+        
+        {application.salary && (
+          <p className="salary">{application.salary}</p>
+        )}
+        
+        {application.status === "In progress" && (
+          <div className="events-info">
+            <span className="event-count">
+              📅 {eventCount} event{eventCount !== 1 ? 's' : ''}
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
