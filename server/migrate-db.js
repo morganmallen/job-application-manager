@@ -200,6 +200,85 @@ async function migrateDatabase() {
       console.log('✅ Notifications table already exists');
     }
 
+    // Check if applied_at column is still DATE type and migrate to TIMESTAMP
+    const { rows: appliedAtColumnInfo } = await client.query(`
+      SELECT data_type 
+      FROM information_schema.columns 
+      WHERE table_name = 'applications' 
+      AND column_name = 'applied_at' 
+      AND table_schema = 'public'
+    `);
+
+    if (appliedAtColumnInfo[0] && appliedAtColumnInfo[0].data_type === 'date') {
+      console.log('🔄 Migrating applied_at column from DATE to TIMESTAMP');
+
+      try {
+        await client.query('BEGIN');
+
+        // Step 1: Drop the dependent view
+        console.log('📋 Dropping dependent view: user_applications_view');
+        await client.query('DROP VIEW IF EXISTS user_applications_view');
+
+        // Step 2: Add temporary column
+        console.log('📊 Adding temporary timestamp column');
+        await client.query(
+          'ALTER TABLE applications ADD COLUMN applied_at_temp TIMESTAMP',
+        );
+
+        // Step 3: Copy existing data, setting time to noon to avoid timezone issues
+        console.log('📝 Copying data to new column with timestamp');
+        await client.query(`
+          UPDATE applications 
+          SET applied_at_temp = applied_at + INTERVAL '12 hours'
+          WHERE applied_at IS NOT NULL
+        `);
+
+        // Step 4: Drop old column
+        console.log('🗑️ Dropping old DATE column');
+        await client.query('ALTER TABLE applications DROP COLUMN applied_at');
+
+        // Step 5: Rename new column
+        console.log('🔄 Renaming temporary column');
+        await client.query(
+          'ALTER TABLE applications RENAME COLUMN applied_at_temp TO applied_at',
+        );
+
+        // Step 6: Recreate the view with TIMESTAMP type
+        console.log('📋 Recreating user_applications_view with TIMESTAMP');
+        await client.query(`
+          CREATE VIEW user_applications_view AS
+          SELECT 
+            a.id,
+            a.position,
+            a.status,
+            a.applied_at,
+            a.salary,
+            a.location,
+            a.remote,
+            c.name AS company_name,
+            c.website AS company_website,
+            u.first_name,
+            u.last_name,
+            u.email
+          FROM applications a
+          JOIN companies c ON a.company_id = c.id
+          JOIN users u ON a.user_id = u.id
+        `);
+
+        await client.query('COMMIT');
+        console.log('✅ Successfully migrated applied_at to TIMESTAMP');
+      } catch (migrationError) {
+        await client.query('ROLLBACK');
+        console.error(
+          '❌ Failed to migrate applied_at column:',
+          migrationError.message,
+        );
+        throw migrationError;
+      }
+    } else {
+      console.log('✅ Applied_at column is already TIMESTAMP type');
+    }
+
     console.log('🎉 Database migration completed successfully!');
   } catch (error) {
     console.error('❌ Database migration failed:', error.message);

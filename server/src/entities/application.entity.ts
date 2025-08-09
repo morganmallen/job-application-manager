@@ -33,7 +33,7 @@ export class Application {
   })
   status!: ApplicationStatus;
 
-  @ApiProperty({ description: 'Application date' })
+  @ApiProperty({ description: 'Application date and time' })
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',

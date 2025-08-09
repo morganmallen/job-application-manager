@@ -76,8 +76,30 @@ export class ApplicationsService {
     }
 
     const applicationData: any = { ...createApplicationDto };
+    console.log(
+      'createApplicationDto.appliedAt',
+      createApplicationDto.appliedAt,
+    );
     if (createApplicationDto.appliedAt) {
-      applicationData.appliedAt = new Date(createApplicationDto.appliedAt);
+      // For local datetime strings (YYYY-MM-DDTHH:mm), preserve full datetime for TIMESTAMP column
+      if (
+        typeof createApplicationDto.appliedAt === 'string' &&
+        createApplicationDto.appliedAt.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/)
+      ) {
+        // Parse local datetime string and create Date object without timezone conversion
+        const [datePart, timePart] = createApplicationDto.appliedAt.split('T');
+        const [year, month, day] = datePart.split('-').map(Number);
+        const [hours, minutes] = timePart.split(':').map(Number);
+        applicationData.appliedAt = new Date(
+          year,
+          month - 1,
+          day,
+          hours,
+          minutes,
+        );
+      } else {
+        applicationData.appliedAt = new Date(createApplicationDto.appliedAt);
+      }
     }
 
     const application = this.applicationsRepository.create(applicationData);
@@ -93,7 +115,19 @@ export class ApplicationsService {
 
     const updateData: any = { ...updateApplicationDto };
     if (updateApplicationDto.appliedAt) {
-      updateData.appliedAt = new Date(updateApplicationDto.appliedAt);
+      // For local datetime strings (YYYY-MM-DDTHH:mm), preserve full datetime for TIMESTAMP column
+      if (
+        typeof updateApplicationDto.appliedAt === 'string' &&
+        updateApplicationDto.appliedAt.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/)
+      ) {
+        // Parse local datetime string and create Date object without timezone conversion
+        const [datePart, timePart] = updateApplicationDto.appliedAt.split('T');
+        const [year, month, day] = datePart.split('-').map(Number);
+        const [hours, minutes] = timePart.split(':').map(Number);
+        updateData.appliedAt = new Date(year, month - 1, day, hours, minutes);
+      } else {
+        updateData.appliedAt = new Date(updateApplicationDto.appliedAt);
+      }
     }
 
     if (

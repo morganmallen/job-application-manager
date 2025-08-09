@@ -11,6 +11,7 @@ import MoveConfirmationModal from "../components/MoveConfirmationModal";
 import EventCreationModal from "../components/EventCreationModal";
 import { createEvent } from "../utils/events";
 import ApplicationDetailsModal from "../components/ApplicationDetailsModal";
+import { getCurrentLocalDateTime } from "../utils";
 
 interface Company {
   id: string;
@@ -176,7 +177,7 @@ const Board = () => {
             notes: applicationData.notes,
             remote: applicationData.remote,
             status: "Applied",
-            appliedAt: new Date().toISOString(),
+            appliedAt: getCurrentLocalDateTime(),
           }),
         }
       );
