@@ -1,284 +1,158 @@
 .application-card {
-    --card-bg: #0e172a;
-    background: var(--card-bg);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
-    padding: 1rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
-    margin-bottom: 0.75rem;
-    user-select: none;
-    min-height: 120px;
-    max-height: 200px;
-    width: 100%;
-    max-width: 280px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    box-sizing: border-box;
+  --card-bg: #0e172a;
+  background: var(--card-bg);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  margin-bottom: 0.75rem;
+  user-select: none;
+  min-height: 100px;
+  max-height: 160px;
+  width: 100%;
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.application-card:hover {
+  border-color: #4fc3f7;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79, 195, 247, 0.1);
+}
+
+.application-card:active {
+  cursor: grabbing;
+  transform: translateY(-1px);
+}
+
+.application-card[draggable="true"] {
+  cursor: grab;
+}
+
+.application-card[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: 100%;
+}
+
+.position-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.position {
+  color: #e0e6f7;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.3;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  max-width: 100%;
+  flex: 1;
+}
+
+.position-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.date {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.company-name {
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.3;
+  overflow: hidden;
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.salary {
+  color: #4fc3f7;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.events-info {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+}
+
+.event-count {
+  font-size: 0.75rem;
+  color: #4fc3f7;
+  font-weight: 500;
+  background: rgba(79, 195, 247, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(79, 195, 247, 0.2);
+}
+
+/* Drag states */
+.application-card[draggable="true"]:hover {
+  opacity: 0.9;
+}
+
+.application-card.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .application-card {
+    padding: 0.75rem;
+    min-height: 90px;
+    max-height: 140px;
   }
-  
-  .application-card:hover {
-    border-color: #4fc3f7;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(79, 195, 247, 0.1);
+
+  .card-content {
+    gap: 0.4rem;
   }
-  
-  .application-card:active {
-    cursor: grabbing;
-    transform: translateY(-1px);
-  }
-  
-  .application-card[draggable="true"] {
-    cursor: grab;
-  }
-  
-  .application-card[draggable="true"]:active {
-    cursor: grabbing;
-  }
-  
-  .card-actions {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    display: flex;
-    gap: 0.25rem;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    z-index: 10;
-  }
-  
-  .application-card:hover .card-actions {
-    opacity: 1;
-  }
-  
-  .card-action-btn {
-    background: rgba(29, 41, 62, 0.9);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 4px;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 0.75rem;
-    transition: all 0.2s ease;
-    backdrop-filter: blur(4px);
-  }
-  
-  .card-action-btn:hover {
-    background: rgba(29, 41, 62, 1);
-    border-color: #4fc3f7;
-    transform: scale(1.1);
-  }
-  
-  .edit-btn:hover {
-    background: rgba(79, 195, 247, 0.1);
-  }
-  
-  .delete-btn:hover {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: #ef4444;
-  }
-  
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 0.5rem;
-    padding-right: 3rem; 
-    flex-shrink: 0;
-    width: 100%;
-    max-width: 100%;
-    overflow: hidden;
-  }
-  
-  .company-name {
-    color: #fff;
-    font-size: 1rem;
-    font-weight: 600;
-    margin: 0;
-    flex: 1;
-    line-height: 1.3;
-    overflow: hidden;
-    word-wrap: break-word;
-    word-break: break-word;
-    hyphens: auto;
-  }
-  
-  .date {
-    color: #94a3b8;
-    font-size: 0.75rem;
-    margin-left: 0.5rem;
-    flex-shrink: 0;
-    font-weight: 500;
-  }
-  
+
   .position {
-    color: #e0e6f7;
-    font-size: 0.9rem;
-    margin: 0.25rem 0;
-    font-weight: 500;
-    line-height: 1.3;
-    flex: 1;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    word-wrap: break-word;
-    word-break: break-word;
-    hyphens: auto;
-    max-width: 100%;
+    font-size: 0.95rem;
   }
 
-  .website-container {
-    margin: 0.25rem 0;
-    font-size: 0.8rem;
-    color: #94a3b8;
+  .company-name {
+    font-size: 0.85rem;
   }
 
-  .company-website {
-    color: #4fc3f7;
-    font-size: 0.8rem;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    font-weight: 500;
-    cursor: pointer;
-  }
-
-  .company-website:hover {
-    color: #38bdf8;
-    text-decoration: underline;
-  }
-  
-  .salary {
-    color: #4fc3f7;
-    font-size: 0.875rem;
-    font-weight: 600;
-    margin: 0.25rem 0;
-    flex-shrink: 0; 
-  }
-  
-  .notes {
-    color: #94a3b8;
-    font-size: 0.8rem;
-    margin: 0.5rem 0 0 0;
-    font-style: italic;
-    line-height: 1.4;
-    overflow: hidden;
-    flex-shrink: 0;
-    position: relative;
-    height: 2.8em; /* Fixed height for 2 lines */
-    max-height: 2.8em; /* 2 lines * 1.4 line-height */
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    word-wrap: break-word;
-    word-break: break-word;
-    text-overflow: ellipsis;
-    max-width: 100%;
-    hyphens: auto;
-  }
-
-  .notes::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 40px;
-    height: 1.4em;
-    background: linear-gradient(to right, transparent, var(--card-bg, #0e172a));
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-  }
-
-  .notes.truncated::after {
-    opacity: 1;
-  }
-
-  .notes.truncated::before {
-    content: '...';
-    position: absolute;
-    bottom: 0;
-    right: 45px;
-    color: #94a3b8;
-    font-size: 0.8rem;
-    font-style: italic;
-    background: var(--card-bg, #0e172a);
-    padding-left: 4px;
-    z-index: 1;
-  }
-  
-  .card-footer {
-    margin-top: 0.75rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid rgba(255,255,255,0.05);
-    display: flex;
-    justify-content: flex-end;
-  }
-  
-  .application-id {
-    color: #64748b;
+  .date {
     font-size: 0.7rem;
-    font-weight: 500;
-    opacity: 0.7;
   }
-  
-  /* Drag states */
-  .application-card[draggable="true"]:hover {
-    opacity: 0.9;
+
+  .salary {
+    font-size: 0.8rem;
   }
-  
-  .application-card.dragging {
-    opacity: 0.5;
-    cursor: grabbing;
-  }
-  
-  /* Mobile responsive */
-  @media (max-width: 768px) {
-    .application-card {
-      padding: 0.75rem;
-    }
-  
-    .card-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.25rem;
-      padding-right: 2rem;
-    }
-  
-    .date {
-      margin-left: 0;
-      font-size: 0.7rem;
-    }
-  
-    .card-actions {
-      top: 0.25rem;
-      right: 0.25rem;
-    }
-  
-    .card-action-btn {
-      width: 20px;
-      height: 20px;
-      font-size: 0.7rem;
-    }
-  
-    .company-name {
-      font-size: 0.95rem;
-    }
-  
-    .position {
-      font-size: 0.85rem;
-    }
-  
-    .salary {
-      font-size: 0.8rem;
-    }
-  
-    .notes {
-      font-size: 0.75rem;
-    }
-  }
+}
