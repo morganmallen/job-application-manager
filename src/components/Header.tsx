@@ -29,26 +29,21 @@ const Header = () => {
   };
 
   const handleLogout = async () => {
-    const refreshToken = localStorage.getItem("refresh_token");
+    const { logout } = await import("../utils/auth");
     try {
-      if (refreshToken) {
-        await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ refresh_token: refreshToken }),
-        });
-      }
+      await logout();
+      setUser(null);
+      setIsDropdownOpen(false);
+      navigate("/signin");
+      toast.success("Session closed successfully");
     } catch (error) {
-      console.error("Failed to revoke refresh token", error);
+      console.error("Failed to logout:", error);
+      // Still clear local data and redirect
+      setUser(null);
+      setIsDropdownOpen(false);
+      navigate("/signin");
+      toast.warning("Logged out (with errors)");
     }
-
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("user");
-    setUser(null);
-    setIsDropdownOpen(false);
-    navigate("/signin");
-    toast.success("Session closed successfully");
   };
 
   useEffect(() => {

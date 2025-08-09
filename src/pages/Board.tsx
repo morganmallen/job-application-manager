@@ -11,7 +11,7 @@ import MoveConfirmationModal from "../components/MoveConfirmationModal";
 import EventCreationModal from "../components/EventCreationModal";
 import { createEvent } from "../utils/events";
 import ApplicationDetailsModal from "../components/ApplicationDetailsModal";
-import { getCurrentLocalDateTime } from "../utils";
+import { getCurrentLocalDateTime, api } from "../utils";
 
 interface Company {
   id: string;
@@ -99,23 +99,9 @@ const Board = () => {
   // Fetch applications from the database
   const fetchApplications = async () => {
     try {
-      const token = localStorage.getItem("access_token");
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/applications`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch applications");
-      }
-
-      const data = await response.json();
+      const data = await api.applications.getAll();
       setApplications(data);
+      setError(""); // Clear any previous errors
     } catch (err: unknown) {
       setError(
         err instanceof Error ? err.message : "Failed to fetch applications"
@@ -201,28 +187,9 @@ const Board = () => {
     newStatus: string
   ) => {
     try {
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        throw new Error("No authentication token found");
-      }
-
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/applications/${applicationId}`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ status: newStatus }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to update application status");
-      }
-
-      const updatedApplication = await response.json();
+      const updatedApplication = await api.applications.update(applicationId, {
+        status: newStatus,
+      });
       setApplications((prev) =>
         prev.map((app) => (app.id === applicationId ? updatedApplication : app))
       );

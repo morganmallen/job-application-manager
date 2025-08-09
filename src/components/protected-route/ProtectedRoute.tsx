@@ -2,6 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loading } from "../loading";
 import { ErrorHandler } from "../error-handling";
+import {
+  isAuthenticated,
+  verifyAndRefreshToken,
+  clearAuthData,
+} from "../../utils/auth";
 import "./styles.css";
 
 interface ProtectedRouteProps {
@@ -13,16 +18,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   fallback,
 }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isAuthenticatedState, setIsAuthenticatedState] = useState<
+    boolean | null
+  >(null);
   const [error, setError] = useState<any>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem("access_token");
-
-      if (!token) {
-        setIsAuthenticated(false);
+      // First check if we have tokens at all
+      if (!isAuthenticated()) {
+        setIsAuthenticatedState(false);
         setError({
           message: "Authentication Required",
           details: "Please log in to access this page.",
@@ -37,22 +43,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       }
 
       try {
-        // Verify token is valid by making a test request
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/auth/verify`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        // Verify and potentially refresh the token
+        const isValid = await verifyAndRefreshToken();
 
-        if (!response.ok) {
-          // Token is invalid, clear it and redirect
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
-          localStorage.removeItem("user");
-          setIsAuthenticated(false);
+        if (isValid) {
+          setIsAuthenticatedState(true);
+          setError(null);
+        } else {
+          // Token verification and refresh both failed
+          clearAuthData();
+          setIsAuthenticatedState(false);
           setError({
             message: "Session Expired",
             details: "Your session has expired. Please log in again.",
@@ -63,13 +63,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
               onClick: () => navigate("/signin"),
             },
           });
-          return;
         }
-
-        setIsAuthenticated(true);
       } catch (err) {
         // Network error or other issues
-        setIsAuthenticated(false);
+        console.error("Authentication check failed:", err);
+        setIsAuthenticatedState(false);
         setError({
           message: "Authentication Error",
           details: "Unable to verify your authentication. Please log in again.",
@@ -87,7 +85,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }, [navigate]);
 
   // Show loading state while checking authentication
-  if (isAuthenticated === null) {
+  if (isAuthenticatedState === null) {
     return (
       fallback || (
         <div className="app page-root">
@@ -98,7 +96,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // Show error if not authenticated
-  if (!isAuthenticated) {
+  if (!isAuthenticatedState) {
     return (
       <div className="app page-root">
         <div className="auth-error-container">

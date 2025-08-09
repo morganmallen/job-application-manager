@@ -61,10 +61,6 @@ const Profile = () => {
             <label>Email</label>
             <p>{user.email}</p>
           </div>
-          <div className="profile-field">
-            <label>User ID</label>
-            <p>{user.userID}</p>
-          </div>
         </div>
       </div>
       <Footer />
