@@ -46,7 +46,7 @@ const MoveConfirmationModal: React.FC<MoveConfirmationModalProps> = ({
       <div className="move-confirm-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h3>Confirm Status Change</h3>
-          <button className="modal-close-btn" onClick={onClose}>
+          <button className="modal-close" onClick={onClose}>
             ×
           </button>
         </div>
