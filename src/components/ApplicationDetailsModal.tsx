@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import "./Modal.css";
+import ApplicationEvents from "./ApplicationEvents";
 
 interface Company {
   id: string;
@@ -8,15 +9,6 @@ interface Company {
   location?: string;
 }
 
-interface Event {
-  id: string;
-  type: string;
-  title: string;
-  description?: string;
-  scheduledAt?: string;
-  completedAt?: string;
-  createdAt: string;
-}
 
 interface JobApplication {
   id: string;
@@ -47,19 +39,9 @@ interface ApplicationDetailsModalProps {
     status: string;
   }) => Promise<void>;
   onDelete?: (applicationId: string) => Promise<void>;
+  onEventAdded?: (applicationId: string) => void;
 }
 
-const EVENT_TYPE_LABELS: Record<string, string> = {
-  PHONE_SCREEN: "Phone Screen",
-  TECHNICAL_INTERVIEW: "Technical Interview",
-  BEHAVIORAL_INTERVIEW: "Behavioral Interview",
-  CODING_CHALLENGE: "Coding Challenge",
-  TAKE_HOME_ASSIGNMENT: "Take Home Assignment",
-  ONSITE_INTERVIEW: "Onsite Interview",
-  REFERENCE_CHECK: "Reference Check",
-  NEGOTIATION: "Negotiation",
-  OTHER: "Other",
-};
 
 const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
   isOpen,
@@ -67,19 +49,12 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
   application,
   onUpdate,
   onDelete,
+  onEventAdded,
 }) => {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [showAddEventForm, setShowAddEventForm] = useState(false);
+  
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [newEvent, setNewEvent] = useState({
-    type: "",
-    title: "",
-    description: "",
-    scheduledAt: "",
-  });
   const [editForm, setEditForm] = useState({
     position: "",
     companyName: "",
@@ -139,35 +114,8 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
     }
   };
 
-  const fetchEvents = useCallback(async () => {
-    if (!application) return;
-
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("access_token");
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/events?applicationId=${application.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setEvents(data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch events:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [application]);
-
   useEffect(() => {
     if (isOpen && application) {
-      fetchEvents();
       setEditForm({
         position: application.position,
         companyName: application.company.name,
@@ -179,39 +127,7 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
         status: application.status,
       });
     }
-  }, [isOpen, application, fetchEvents]);
-
-  const handleAddEvent = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!application || !newEvent.type || !newEvent.title) return;
-
-    try {
-      const token = localStorage.getItem("access_token");
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/events`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...newEvent,
-            applicationId: application.id,
-          }),
-        }
-      );
-
-      if (response.ok) {
-        setNewEvent({ type: "", title: "", description: "", scheduledAt: "" });
-        setShowAddEventForm(false);
-        fetchEvents();
-      }
-    } catch (error) {
-      console.error("Failed to create event:", error);
-    }
-  };
+  }, [isOpen, application]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -222,13 +138,6 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
-
-  const getEventStatus = (event: Event) => {
-    if (event.completedAt) return "completed";
-    if (event.scheduledAt && new Date(event.scheduledAt) < new Date()) return "history";
-    if (event.scheduledAt) return "scheduled";
-    return "pending";
   };
 
   const getStatusColor = (status: string) => {
@@ -509,154 +418,12 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
           )}
 
           <div className="events-section">
-            <div className="events-header">
-              <h4>Interview Events ({events.length})</h4>
-              {application.status === "In progress" && (
-                <button
-                  className="add-event-btn"
-                  onClick={() => setShowAddEventForm(!showAddEventForm)}
-                >
-                  {showAddEventForm ? "Cancel" : "+ Add Event"}
-                </button>
-              )}
-            </div>
-
-            {showAddEventForm && (
-              <form onSubmit={handleAddEvent} className="add-event-form">
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Event Type</label>
-                    <select
-                      value={newEvent.type}
-                      onChange={(e) => setNewEvent({ ...newEvent, type: e.target.value })}
-                      required
-                    >
-                      <option value="">Select type</option>
-                      {Object.entries(EVENT_TYPE_LABELS).map(([value, label]) => (
-                        <option key={value} value={value}>
-                          {label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label>Title</label>
-                    <input
-                      type="text"
-                      value={newEvent.title}
-                      onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                      placeholder="e.g., Technical Interview"
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div className="form-group">
-                  <label>Description</label>
-                  <textarea
-                    value={newEvent.description}
-                    onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
-                    placeholder="Optional description"
-                    rows={3}
-                  />
-                </div>
-                
-                <div className="form-group">
-                  <label>Scheduled Date & Time</label>
-                  <input
-                    type="datetime-local"
-                    value={newEvent.scheduledAt}
-                    onChange={(e) => setNewEvent({ ...newEvent, scheduledAt: e.target.value })}
-                  />
-                </div>
-                
-                <div className="form-actions">
-                  <button type="submit" className="submit-btn">
-                    Add Event
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {loading ? (
-              <div className="events-loading">Loading events...</div>
-            ) : events.length === 0 ? (
-              <div className="no-events">
-                <p>No events yet. {application.status === "In progress" ? "Add your first interview event!" : "Events will appear here when the application moves to 'In Progress'."}</p>
-              </div>
-            ) : (
-              <div className="events-list">
-                {(() => {
-                  const now = new Date();
-
-                  const upcoming = events
-                    .filter((e) => e.scheduledAt && !e.completedAt && new Date(e.scheduledAt) > now)
-                    .sort((a, b) => new Date(a.scheduledAt as string).getTime() - new Date(b.scheduledAt as string).getTime());
-
-                  const history = events
-                    .filter((e) =>
-                      (e.completedAt) ||
-                      (e.scheduledAt && new Date(e.scheduledAt) <= now) ||
-                      (!e.scheduledAt)
-                    )
-                    .sort((a, b) => {
-                      const aDate = new Date((a.completedAt || a.scheduledAt || a.createdAt) as string).getTime();
-                      const bDate = new Date((b.completedAt || b.scheduledAt || b.createdAt) as string).getTime();
-                      return bDate - aDate; 
-                    });
-
-                  return (
-                    <>
-                      {upcoming.length > 0 && (
-                        <div className="events-subsection">
-                          <h5 className="events-subheader">Upcoming</h5>
-                          {upcoming.map((event) => (
-                            <div key={event.id} className={`event-item ${getEventStatus(event)}`}>
-                              <div className="event-header">
-                                <span className="event-type">{EVENT_TYPE_LABELS[event.type] || event.type}</span>
-                                <span className={`event-status ${getEventStatus(event)}`}>
-                                  {getEventStatus(event)}
-                                </span>
-                              </div>
-                              <h5 className="event-title">{event.title}</h5>
-                              {event.description && (
-                                <p className="event-description">{event.description}</p>
-                              )}
-                              {event.scheduledAt && (
-                                <p className="event-scheduled">📅 {formatDate(event.scheduledAt)}</p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {history.length > 0 && (
-                        <div className="events-subsection">
-                          <h5 className="events-subheader">History</h5>
-                          {history.map((event) => (
-                            <div key={event.id} className={`event-item ${getEventStatus(event)}`}>
-                              <div className="event-header">
-                                <span className="event-type">{EVENT_TYPE_LABELS[event.type] || event.type}</span>
-                                <span className={`event-status ${getEventStatus(event)}`}>
-                                  {getEventStatus(event)}
-                                </span>
-                              </div>
-                              <h5 className="event-title">{event.title}</h5>
-                              {event.description && (
-                                <p className="event-description">{event.description}</p>
-                              )}
-                              {event.scheduledAt && (
-                                <p className="event-scheduled">📅 {formatDate(event.scheduledAt)}</p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </>
-                  );
-                })()}
-              </div>
-            )}
+            <ApplicationEvents
+              applicationId={application.id}
+              isVisible={isOpen}
+              canAdd={application.status === "In progress"}
+              onAdded={() => onEventAdded?.(application.id)}
+            />
           </div>
         </div>
       </div>

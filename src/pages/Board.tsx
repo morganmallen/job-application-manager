@@ -4,11 +4,13 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import ApplicationCard from "../components/ApplicationCard";
 import AddApplicationModal from "../components/AddApplicationModal";
-import EditApplicationModal from "../components/EditApplicationModal";
 import { Loading } from "../components/loading";
 import { useSetAtom } from "jotai";
 import { activeCardsAtom } from "../store/dashboardAtoms";
 import MoveConfirmationModal from "../components/MoveConfirmationModal";
+import EventCreationModal from "../components/EventCreationModal";
+import { createEvent } from "../utils/events";
+import ApplicationDetailsModal from "../components/ApplicationDetailsModal";
 
 interface Company {
   id: string;
@@ -36,9 +38,6 @@ const Board = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingApplication, setEditingApplication] =
-    useState<JobApplication | null>(null);
   const [draggedItem, setDraggedItem] = useState<JobApplication | null>(null);
   const [draggedFromColumn, setDraggedFromColumn] = useState<string | null>(
     null
@@ -51,6 +50,16 @@ const Board = () => {
     fromStatus: string;
     toStatus: string;
   } | null>(null);
+  const [isEventCreationModalOpen, setIsEventCreationModalOpen] =
+    useState(false);
+  const [pendingEventCreation, setPendingEventCreation] = useState<{
+    application: JobApplication;
+    fromStatus: string;
+    toStatus: string;
+  } | null>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedApplication, setSelectedApplication] =
+    useState<JobApplication | null>(null);
 
   const columns = [
     { id: "Applied", title: "Applied" },
@@ -249,11 +258,6 @@ const Board = () => {
     }
   };
 
-  const handleEditApplication = (application: JobApplication) => {
-    setEditingApplication(application);
-    setIsEditModalOpen(true);
-  };
-
   const handleEditApplicationSubmit = async (
     applicationId: string,
     applicationData: {
@@ -303,6 +307,18 @@ const Board = () => {
 
           companyId = existingCompany.id;
         } else if (existingCompanyResponse.status === 404) {
+          const companyPayload: any = {
+            name: applicationData.companyName,
+          };
+
+          if (applicationData.location && applicationData.location.trim()) {
+            companyPayload.location = applicationData.location;
+          }
+
+          if (applicationData.website && applicationData.website.trim()) {
+            companyPayload.website = applicationData.website;
+          }
+
           const companyResponse = await fetch(
             `${import.meta.env.VITE_API_URL}/companies`,
             {
@@ -311,11 +327,7 @@ const Board = () => {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({
-                name: applicationData.companyName,
-                website: applicationData.website,
-                location: applicationData.location,
-              }),
+              body: JSON.stringify(companyPayload),
             }
           );
 
@@ -336,6 +348,20 @@ const Board = () => {
           applicationData.location !== currentApplication.company.location;
 
         if (websiteChanged || locationChanged) {
+          const updatePayload: any = {};
+
+          if (locationChanged) {
+            updatePayload.location = applicationData.location;
+          }
+
+          if (websiteChanged) {
+            if (applicationData.website && applicationData.website.trim()) {
+              updatePayload.website = applicationData.website;
+            } else {
+              updatePayload.website = null;
+            }
+          }
+
           const companyUpdateResponse = await fetch(
             `${import.meta.env.VITE_API_URL}/companies/${
               currentApplication.company.id
@@ -346,10 +372,7 @@ const Board = () => {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({
-                website: applicationData.website,
-                location: applicationData.location,
-              }),
+              body: JSON.stringify(updatePayload),
             }
           );
 
@@ -396,6 +419,8 @@ const Board = () => {
           return app;
         });
       });
+
+      setSelectedApplication(updatedApplication);
     } catch (err: unknown) {
       throw new Error(
         err instanceof Error ? err.message : "Failed to update application"
@@ -417,21 +442,27 @@ const Board = () => {
     setDragOverColumn(columnId);
     setWorkflowError(null);
 
-    const container = document.querySelector('.board-container');
+    const container = document.querySelector(".board-container");
     if (!container) return;
 
     const containerRect = container.getBoundingClientRect();
-    const scrollThreshold = 100; 
-    const maxScrollSpeed = 15; 
+    const scrollThreshold = 100;
+    const maxScrollSpeed = 15;
 
     const distanceFromLeft = e.clientX - containerRect.left;
     const distanceFromRight = containerRect.right - e.clientX;
 
     if (distanceFromLeft < scrollThreshold) {
-      const speed = Math.min(maxScrollSpeed, (scrollThreshold - distanceFromLeft) / 3);
+      const speed = Math.min(
+        maxScrollSpeed,
+        (scrollThreshold - distanceFromLeft) / 3
+      );
       container.scrollLeft -= speed;
     } else if (distanceFromRight < scrollThreshold) {
-      const speed = Math.min(maxScrollSpeed, (scrollThreshold - distanceFromRight) / 3);
+      const speed = Math.min(
+        maxScrollSpeed,
+        (scrollThreshold - distanceFromRight) / 3
+      );
       container.scrollLeft += speed;
     }
   };
@@ -466,12 +497,21 @@ const Board = () => {
 
     setWorkflowError(null);
 
-    setPendingMove({
-      application: draggedItem,
-      fromStatus: draggedFromColumn,
-      toStatus: targetColumnId,
-    });
-    setIsMoveConfirmModalOpen(true);
+    if (targetColumnId === "In progress") {
+      setPendingMove({
+        application: draggedItem,
+        fromStatus: draggedFromColumn,
+        toStatus: targetColumnId,
+      });
+      setIsMoveConfirmModalOpen(true);
+    } else {
+      setPendingMove({
+        application: draggedItem,
+        fromStatus: draggedFromColumn,
+        toStatus: targetColumnId,
+      });
+      setIsMoveConfirmModalOpen(true);
+    }
 
     setDraggedItem(null);
     setDraggedFromColumn(null);
@@ -501,6 +541,14 @@ const Board = () => {
         pendingMove.application.id,
         pendingMove.toStatus
       );
+      if (pendingMove.toStatus === "In progress") {
+        setPendingEventCreation({
+          application: pendingMove.application,
+          fromStatus: pendingMove.fromStatus,
+          toStatus: pendingMove.toStatus,
+        });
+        setIsEventCreationModalOpen(true);
+      }
       setIsMoveConfirmModalOpen(false);
       setPendingMove(null);
     } catch (error) {
@@ -513,6 +561,66 @@ const Board = () => {
   const handleCancelMove = () => {
     setIsMoveConfirmModalOpen(false);
     setPendingMove(null);
+  };
+
+  const handleCreateEvent = async (eventData: {
+    type: string;
+    title: string;
+    description?: string;
+    scheduledAt?: string;
+  }) => {
+    if (!pendingEventCreation) return;
+
+    try {
+      const token = localStorage.getItem("access_token");
+      await createEvent(token || "", {
+        ...eventData,
+        applicationId: pendingEventCreation.application.id,
+      });
+
+      await handleUpdateApplicationStatus(
+        pendingEventCreation.application.id,
+        pendingEventCreation.toStatus
+      );
+
+      setIsEventCreationModalOpen(false);
+      setPendingEventCreation(null);
+    } catch (error) {
+      console.error("Failed to create event and move application:", error);
+      setIsEventCreationModalOpen(false);
+      setPendingEventCreation(null);
+    }
+  };
+
+  const handleCancelEventCreation = () => {
+    setIsEventCreationModalOpen(false);
+    setPendingEventCreation(null);
+  };
+
+  const handleViewDetails = (application: JobApplication) => {
+    setSelectedApplication(application);
+    setIsDetailsModalOpen(true);
+  };
+
+  const handleCloseDetails = () => {
+    setIsDetailsModalOpen(false);
+    setSelectedApplication(null);
+  };
+
+  const handleEventAdded = (applicationId: string) => {
+    setApplications((prev) =>
+      prev.map((app) =>
+        app.id === applicationId
+          ? { ...app, updatedAt: new Date().toISOString() }
+          : app
+      )
+    );
+    if (selectedApplication && selectedApplication.id === applicationId) {
+      setSelectedApplication({
+        ...selectedApplication,
+        updatedAt: new Date().toISOString(),
+      });
+    }
   };
 
   if (loading) {
@@ -590,8 +698,7 @@ const Board = () => {
                       onDragStart={() =>
                         handleDragStart(application, column.id)
                       }
-                      onEdit={handleEditApplication}
-                      onDelete={handleDeleteApplication}
+                      onViewDetails={handleViewDetails}
                       isDragging={draggedItem?.id === application.id}
                     />
                   ))}
@@ -608,20 +715,26 @@ const Board = () => {
         onSubmit={handleCreateApplication}
       />
 
-      <EditApplicationModal
-        isOpen={isEditModalOpen}
-        onClose={() => {
-          setIsEditModalOpen(false);
-          setEditingApplication(null);
-        }}
-        onSubmit={handleEditApplicationSubmit}
-        application={editingApplication}
-      />
       <MoveConfirmationModal
         isOpen={isMoveConfirmModalOpen}
         onClose={handleCancelMove}
         onConfirm={handleConfirmMove}
         pendingMove={pendingMove}
+      />
+      <EventCreationModal
+        isOpen={isEventCreationModalOpen}
+        onClose={handleCancelEventCreation}
+        onConfirm={handleCreateEvent}
+        application={pendingEventCreation?.application || null}
+      />
+
+      <ApplicationDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={handleCloseDetails}
+        application={selectedApplication}
+        onUpdate={handleEditApplicationSubmit}
+        onDelete={handleDeleteApplication}
+        onEventAdded={handleEventAdded}
       />
 
       <Footer />
