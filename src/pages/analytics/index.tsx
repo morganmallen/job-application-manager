@@ -12,6 +12,7 @@ import {
   EmptyAnalytics,
 } from "../../components/analytics";
 import AddApplicationModal from "../../components/AddApplicationModal";
+import { getCurrentLocalDateTime } from "../../utils";
 
 interface ApplicationStats {
   total: number;
@@ -140,7 +141,7 @@ const Analytics = () => {
             notes: applicationData.notes,
             remote: applicationData.remote,
             status: "Applied",
-            appliedAt: new Date().toISOString(),
+            appliedAt: getCurrentLocalDateTime(),
           }),
         }
       );

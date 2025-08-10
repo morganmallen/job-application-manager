@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./Modal.css";
+import { getCurrentLocalDateTime } from "../utils";
 
 interface AddApplicationModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface AddApplicationModalProps {
     location?: string;
     notes?: string;
     remote?: boolean;
+    appliedAt?: string;
   }) => void;
 }
 
@@ -31,11 +33,13 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
   const [error, setError] = useState("");
 
   const formatSalary = (value: string): string => {
-    if (value.includes('-') || value.toLowerCase().includes('to')) {
-      const rangeMatch = value.match(/(\d+(?:,\d+)*)\s*[-to]\s*(\d+(?:,\d+)*)/i);
+    if (value.includes("-") || value.toLowerCase().includes("to")) {
+      const rangeMatch = value.match(
+        /(\d+(?:,\d+)*)\s*[-to]\s*(\d+(?:,\d+)*)/i
+      );
       if (rangeMatch) {
-        const min = parseInt(rangeMatch[1].replace(/,/g, ''), 10);
-        const max = parseInt(rangeMatch[2].replace(/,/g, ''), 10);
+        const min = parseInt(rangeMatch[1].replace(/,/g, ""), 10);
+        const max = parseInt(rangeMatch[2].replace(/,/g, ""), 10);
         return `$${min.toLocaleString()}-$${max.toLocaleString()}`;
       }
     }
@@ -64,14 +68,17 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
   };
 
   const handleSalaryKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       const value = e.currentTarget.value;
       if (value.trim()) {
         const formatted = formatSalary(value);
         setSalary(formatted);
       }
-      const nextInput = e.currentTarget.parentElement?.nextElementSibling?.querySelector('input');
+      const nextInput =
+        e.currentTarget.parentElement?.nextElementSibling?.querySelector(
+          "input"
+        );
       if (nextInput) {
         (nextInput as HTMLInputElement).focus();
       }
@@ -80,15 +87,15 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
 
   const formatWebsite = (url: string): string => {
     if (!url.trim()) return url;
-    
+
     let formattedUrl = url.trim();
-    
+
     formattedUrl = formattedUrl.trim();
-    
+
     if (!formattedUrl.match(/^https?:\/\//)) {
       formattedUrl = `https://${formattedUrl}`;
     }
-    
+
     return formattedUrl;
   };
 
@@ -103,6 +110,9 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
     setLoading(true);
     setError("");
 
+    // Create date in local timezone (Peru time)
+    const appliedAt = getCurrentLocalDateTime();
+    console.log("appliedAt (local time):", appliedAt);
     try {
       await onSubmit({
         position: position.trim(),
@@ -112,6 +122,7 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
         location: location.trim() || undefined,
         notes: notes.trim() || undefined,
         remote,
+        appliedAt,
       });
 
       // Reset form

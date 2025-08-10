@@ -75,7 +75,7 @@ CREATE TABLE applications (
   company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   status application_status DEFAULT 'Applied',
-  applied_at DATE,
+  applied_at TIMESTAMP,
   salary VARCHAR(255),
   location VARCHAR(255),
   remote BOOLEAN DEFAULT FALSE,

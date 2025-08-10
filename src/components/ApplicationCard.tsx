@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import './ApplicationCard.css';
+import React, { useEffect, useState, useCallback } from "react";
+import "./ApplicationCard.css";
+import { formatDateForDisplay } from "../utils";
 
 interface Company {
   id: string;
@@ -33,7 +34,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
   application,
   onDragStart,
   onViewDetails,
-  isDragging = false
+  isDragging = false,
 }) => {
   const [eventCount, setEventCount] = useState(0);
 
@@ -41,7 +42,9 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
     try {
       const token = localStorage.getItem("access_token");
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/events?applicationId=${application.id}`,
+        `${import.meta.env.VITE_API_URL}/events?applicationId=${
+          application.id
+        }`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -74,17 +77,9 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
-
   return (
     <div
-      className={`application-card ${isDragging ? 'dragging' : ''}`}
+      className={`application-card ${isDragging ? "dragging" : ""}`}
       draggable
       onDragStart={handleDragStart}
       onClick={handleCardClick}
@@ -93,20 +88,22 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
         <div className="position-header">
           <h3 className="position">{application.position}</h3>
           <div className="position-actions">
-            <span className="date">{formatDate(application.appliedAt)}</span>
+            <span className="date">
+              {formatDateForDisplay(application.appliedAt)}
+            </span>
           </div>
         </div>
-        
-        <h4 className="company-name">{application.company?.name || 'Unknown Company'}</h4>
-        
-        {application.salary && (
-          <p className="salary">{application.salary}</p>
-        )}
-        
+
+        <h4 className="company-name">
+          {application.company?.name || "Unknown Company"}
+        </h4>
+
+        {application.salary && <p className="salary">{application.salary}</p>}
+
         {application.status === "In progress" && (
           <div className="events-info">
             <span className="event-count">
-              📅 {eventCount} event{eventCount !== 1 ? 's' : ''}
+              📅 {eventCount} event{eventCount !== 1 ? "s" : ""}
             </span>
           </div>
         )}

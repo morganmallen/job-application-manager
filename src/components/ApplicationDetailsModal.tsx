@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Modal.css";
 import ApplicationEvents from "./ApplicationEvents";
+import { formatDateForDisplay } from "../utils";
 
 interface Company {
   id: string;
@@ -8,7 +9,6 @@ interface Company {
   website?: string;
   location?: string;
 }
-
 
 interface JobApplication {
   id: string;
@@ -28,20 +28,22 @@ interface ApplicationDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   application: JobApplication | null;
-  onUpdate?: (applicationId: string, data: {
-    position: string;
-    companyName: string;
-    website?: string;
-    salary?: string;
-    location?: string;
-    notes?: string;
-    remote?: boolean;
-    status: string;
-  }) => Promise<void>;
+  onUpdate?: (
+    applicationId: string,
+    data: {
+      position: string;
+      companyName: string;
+      website?: string;
+      salary?: string;
+      location?: string;
+      notes?: string;
+      remote?: boolean;
+      status: string;
+    }
+  ) => Promise<void>;
   onDelete?: (applicationId: string) => Promise<void>;
   onEventAdded?: (applicationId: string) => void;
 }
-
 
 const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
   isOpen,
@@ -51,7 +53,6 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
   onDelete,
   onEventAdded,
 }) => {
-  
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
@@ -67,11 +68,13 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
   });
 
   const formatSalary = (value: string): string => {
-    if (value.includes('-') || value.toLowerCase().includes('to')) {
-      const rangeMatch = value.match(/(\d+(?:,\d+)*)\s*[-to]\s*(\d+(?:,\d+)*)/i);
+    if (value.includes("-") || value.toLowerCase().includes("to")) {
+      const rangeMatch = value.match(
+        /(\d+(?:,\d+)*)\s*[-to]\s*(\d+(?:,\d+)*)/i
+      );
       if (rangeMatch) {
-        const min = parseInt(rangeMatch[1].replace(/,/g, ''), 10);
-        const max = parseInt(rangeMatch[2].replace(/,/g, ''), 10);
+        const min = parseInt(rangeMatch[1].replace(/,/g, ""), 10);
+        const max = parseInt(rangeMatch[2].replace(/,/g, ""), 10);
         return `$${min.toLocaleString()}-$${max.toLocaleString()}`;
       }
     }
@@ -100,14 +103,17 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
   };
 
   const handleSalaryKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       const value = e.currentTarget.value;
       if (value.trim()) {
         const formatted = formatSalary(value);
         setEditForm((prev) => ({ ...prev, salary: formatted }));
       }
-      const nextInput = e.currentTarget.parentElement?.nextElementSibling?.querySelector('input');
+      const nextInput =
+        e.currentTarget.parentElement?.nextElementSibling?.querySelector(
+          "input"
+        );
       if (nextInput) {
         (nextInput as HTMLInputElement).focus();
       }
@@ -129,26 +135,22 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
     }
   }, [isOpen, application]);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Applied": return "#3b82f6";
-      case "In progress": return "#f59e0b";
-      case "Job Offered": return "#10b981";
-      case "Accepted": return "#059669";
-      case "Rejected": return "#ef4444";
-      case "Withdraw": return "#6b7280";
-      default: return "#94a3b8";
+      case "Applied":
+        return "#3b82f6";
+      case "In progress":
+        return "#f59e0b";
+      case "Job Offered":
+        return "#10b981";
+      case "Accepted":
+        return "#059669";
+      case "Rejected":
+        return "#ef4444";
+      case "Withdraw":
+        return "#6b7280";
+      default:
+        return "#94a3b8";
     }
   };
 
@@ -158,7 +160,7 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!application || !onUpdate) return;
 
     setIsSubmitting(true);
@@ -197,7 +199,7 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
       setConfirmDeleteOpen(false);
       onClose();
     } catch (error) {
-      console.error('Failed to delete application:', error);
+      console.error("Failed to delete application:", error);
     }
   };
 
@@ -207,13 +209,16 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="application-details-modal" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="application-details-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal-header">
           <h3>Application Details</h3>
           <div className="modal-header-actions">
             {onUpdate && (
-              <button 
-                className="edit-toggle-btn" 
+              <button
+                className="edit-toggle-btn"
                 onClick={handleEditToggle}
                 title={isEditing ? "Cancel editing" : "Edit application"}
               >
@@ -221,8 +226,8 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
               </button>
             )}
             {onDelete && (
-              <button 
-                className="edit-toggle-btn" 
+              <button
+                className="edit-toggle-btn"
                 onClick={openDeleteConfirm}
                 title="Delete application"
               >
@@ -244,7 +249,9 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
                   id="edit-position"
                   type="text"
                   value={editForm.position}
-                  onChange={(e) => setEditForm({ ...editForm, position: e.target.value })}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, position: e.target.value })
+                  }
                   placeholder="e.g., Senior Software Engineer"
                   required
                 />
@@ -256,7 +263,9 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
                   id="edit-company"
                   type="text"
                   value={editForm.companyName}
-                  onChange={(e) => setEditForm({ ...editForm, companyName: e.target.value })}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, companyName: e.target.value })
+                  }
                   placeholder="e.g., Google, Microsoft, Apple"
                   required
                 />
@@ -268,7 +277,9 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
                   id="edit-website"
                   type="text"
                   value={editForm.website}
-                  onChange={(e) => setEditForm({ ...editForm, website: e.target.value })}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, website: e.target.value })
+                  }
                   placeholder="e.g., netflix.com or https://company.com"
                 />
               </div>
@@ -293,7 +304,9 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
                     id="edit-location"
                     type="text"
                     value={editForm.location}
-                    onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, location: e.target.value })
+                    }
                     placeholder="e.g., San Francisco, CA"
                   />
                 </div>
@@ -304,7 +317,9 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
                 <select
                   id="edit-status"
                   value={editForm.status}
-                  onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, status: e.target.value })
+                  }
                 >
                   <option value="Applied">Applied</option>
                   <option value="In progress">In Progress</option>
@@ -320,7 +335,9 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
                 <textarea
                   id="edit-notes"
                   value={editForm.notes}
-                  onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, notes: e.target.value })
+                  }
                   placeholder="Any additional notes about this application..."
                   rows={3}
                 />
@@ -331,7 +348,9 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
                   <input
                     type="checkbox"
                     checked={editForm.remote}
-                    onChange={(e) => setEditForm({ ...editForm, remote: e.target.checked })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, remote: e.target.checked })
+                    }
                   />
                   Remote position
                 </label>
@@ -346,7 +365,11 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
                 >
                   Cancel
                 </button>
-                <button type="submit" className="btn-primary" disabled={isSubmitting}>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  disabled={isSubmitting}
+                >
                   {isSubmitting ? "Saving..." : "Save Changes"}
                 </button>
               </div>
@@ -357,9 +380,11 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
                 <div className="app-header">
                   <div className="app-title">
                     <h2>{application.position}</h2>
-                    <span 
+                    <span
                       className="status-badge"
-                      style={{ backgroundColor: getStatusColor(application.status) }}
+                      style={{
+                        backgroundColor: getStatusColor(application.status),
+                      }}
                     >
                       {application.status}
                     </span>
@@ -370,34 +395,43 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
                 <div className="app-details-grid">
                   <div className="detail-item">
                     <label>Applied Date</label>
-                    <span>{formatDate(application.appliedAt)}</span>
+                    <span>
+                      {formatDateForDisplay(application.appliedAt, {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
                   </div>
-                  
+
                   {application.salary && (
                     <div className="detail-item">
                       <label>Salary</label>
                       <span>{application.salary}</span>
                     </div>
                   )}
-                  
+
                   {application.location && (
                     <div className="detail-item">
                       <label>Location</label>
                       <span>{application.location}</span>
                     </div>
                   )}
-                  
+
                   <div className="detail-item">
                     <label>Remote</label>
                     <span>{application.remote ? "Yes" : "No"}</span>
                   </div>
-                  
+
                   {application.company.website && (
                     <div className="detail-item">
                       <label>Website</label>
-                      <a 
-                        href={application.company.website} 
-                        target="_blank" 
+                      <a
+                        href={application.company.website}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="website-link"
                       >
@@ -430,7 +464,10 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
 
       {confirmDeleteOpen && (
         <div className="modal-overlay" onClick={closeDeleteConfirm}>
-          <div className="move-confirm-modal" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="move-confirm-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="modal-header">
               <h3>Delete Application</h3>
               <button className="modal-close" onClick={closeDeleteConfirm}>
@@ -440,17 +477,26 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
             <div className="modal-content">
               <div className="move-details">
                 <p>
-                  Are you sure you want to delete <strong>{application.position}</strong> at <strong>{application.company.name}</strong>?
+                  Are you sure you want to delete{" "}
+                  <strong>{application.position}</strong> at{" "}
+                  <strong>{application.company.name}</strong>?
                 </p>
                 <div className="warning-message">
                   <span className="warning-icon">⚠️</span>
-                  <p>This action cannot be undone. The application will be deleted permanently.</p>
+                  <p>
+                    This action cannot be undone. The application will be
+                    deleted permanently.
+                  </p>
                 </div>
               </div>
             </div>
             <div className="modal-actions">
-              <button className="cancel-btn" onClick={closeDeleteConfirm}>Cancel</button>
-              <button className="confirm-btn" onClick={handleConfirmDelete}>Delete</button>
+              <button className="cancel-btn" onClick={closeDeleteConfirm}>
+                Cancel
+              </button>
+              <button className="confirm-btn" onClick={handleConfirmDelete}>
+                Delete
+              </button>
             </div>
           </div>
         </div>
