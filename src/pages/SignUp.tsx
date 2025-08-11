@@ -119,7 +119,7 @@ const SignUp = () => {
               disabled={loading}
             />
             <button
-              tabindex={-1}
+              tabIndex={-1}
               type="button"
               className="toggle-password"
               onClick={() => setShowPassword(!showPassword)}
@@ -138,7 +138,7 @@ const SignUp = () => {
               disabled={loading}
             />
             <button
-              tabindex={-1}
+              tabIndex={-1}
               type="button"
               className="toggle-password"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
