@@ -176,26 +176,7 @@ const Header = () => {
 
           <div className="mobile-user-menu">
             {!user ? (
-              <>
-                <NavLink
-                  to="/signin"
-                  className={({ isActive }) =>
-                    `nav-link${isActive ? " active" : ""}`
-                  }
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Sign In
-                </NavLink>
-                <NavLink
-                  to="/signup"
-                  className={({ isActive }) =>
-                    `nav-link${isActive ? " active" : ""}`
-                  }
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Sign Up
-                </NavLink>
-              </>
+              <></>
             ) : (
               <>
                 <NavLink
@@ -209,6 +190,7 @@ const Header = () => {
                 </NavLink>
                 <button
                   className="nav-link"
+                  style={{ margin: 0 }}
                   onClick={() => {
                     handleDeleteAccount();
                     setIsMobileMenuOpen(false);
@@ -218,6 +200,7 @@ const Header = () => {
                 </button>
                 <button
                   className="nav-link"
+                  style={{ margin: 0 }}
                   onClick={() => {
                     handleLogout();
                     setIsMobileMenuOpen(false);

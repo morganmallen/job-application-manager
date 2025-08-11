@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 
+// Activity type for recent activity list
 interface Activity {
   id: string;
   type: "application" | "event" | "note";
@@ -11,22 +12,26 @@ interface Activity {
   position?: string;
 }
 
+// Props for recent activity component
 interface RecentActivityProps {
   activities: Activity[];
 }
 
+// Recent activity component
 const RecentActivity: React.FC<RecentActivityProps> = ({ activities }) => {
+  // Track current time for live updates
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
-    // Update time every minute
+    // Update time every minute for live relative time
     const interval = setInterval(() => {
       setCurrentTime(new Date());
-    }, 60000); // 60000ms = 1 minute
+    }, 60000);
 
     return () => clearInterval(interval);
   }, []);
 
+  // Format date as relative time
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const diffInSeconds = Math.floor(
@@ -49,6 +54,7 @@ const RecentActivity: React.FC<RecentActivityProps> = ({ activities }) => {
     }
   };
 
+  // Get icon for activity type
   const getActivityIcon = (type: string) => {
     switch (type) {
       case "application":

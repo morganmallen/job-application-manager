@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useAtom, useSetAtom } from "jotai";
 import { activeCardsAtom } from "../../store/dashboardAtoms";
 
+// Type for recent activity items
 interface RecentActivity {
   id: string;
   type: "application" | "event" | "note";
@@ -21,8 +22,11 @@ interface RecentActivity {
 }
 
 const OverviewDashboard = () => {
+  // Jotai atom for statistics
   const [stats] = useAtom(activeCardsAtom);
   const setActiveCards = useSetAtom(activeCardsAtom);
+
+  // Local state for loading, username, and recent activities
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState("");
   const [recentActivities, setRecentActivities] = useState<RecentActivity[]>(
@@ -30,16 +34,18 @@ const OverviewDashboard = () => {
   );
   const navigate = useNavigate();
 
+  // Fetch statistics and recent activity on mount
   useEffect(() => {
     setLoading(true);
     const token = localStorage.getItem("access_token");
 
-    // Fetch applications for statistics
+    // Fetch job applications for statistics
     fetch(`${import.meta.env.VITE_API_URL}/applications`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
       .then((data) => {
+        // Count applications per status/category
         const columns = [
           "Applied",
           "In progress",
@@ -60,7 +66,7 @@ const OverviewDashboard = () => {
         console.error("Failed to fetch applications:", error);
       });
 
-    // Fetch recent activity
+    // Fetch recent activity (limit to 5)
     fetch(`${import.meta.env.VITE_API_URL}/recent-activity?limit=5`, {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -70,15 +76,16 @@ const OverviewDashboard = () => {
       })
       .catch((error) => {
         console.error("Failed to fetch recent activity:", error);
-        // Fallback to empty array if API fails
         setRecentActivities([]);
       })
       .finally(() => setLoading(false));
 
+    // Get username from localStorage
     const userData = JSON.parse(localStorage.getItem("user") || "{}");
     setUsername(userData.first_name || "User");
   }, [setActiveCards]);
 
+  // Show loading spinner while fetching data
   if (loading) {
     return (
       <div className="app page-root">
@@ -91,20 +98,23 @@ const OverviewDashboard = () => {
     );
   }
 
+  // Main dashboard layout
   return (
     <div className="app page-root">
       <Header />
       <main className="main-content">
+        {/* Greeting section */}
         <section className="greetings">
           <h1>Welcome in, {username}!</h1>
         </section>
+        {/* Dashboard hero section */}
         <section className="hero-section">
           <h1>Overview Dashboard</h1>
           <p>
             Track your job applications and stay updated with your latest
             progress.
           </p>
-
+          {/* Button to go to board page */}
           <button
             className="go-to-board-button"
             onClick={() => navigate("/board")}
@@ -113,7 +123,9 @@ const OverviewDashboard = () => {
           </button>
         </section>
 
+        {/* Statistics and recent activity grid */}
         <div className="dashboard-grid">
+          {/* Statistics cards */}
           <section className="statistics-section">
             <h2 style={{ marginBottom: "1rem" }}>Statistics</h2>
             <StatisticsCards
@@ -130,6 +142,7 @@ const OverviewDashboard = () => {
             </button>
           </section>
 
+          {/* Recent activity list */}
           <section className="activity-section">
             <h2 style={{ marginBottom: "1rem" }}>Recent Activity</h2>
             <RecentActivityList activities={recentActivities} />
