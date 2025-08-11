@@ -38,12 +38,12 @@ const SignUp = () => {
       return;
     }
 
-    if (!validatePassword(password)) {
-      toast.error(
-        "Password must be at least 6 characters long, contain one uppercase letter, and one number."
-      );
-      return;
-    }
+    // if (!validatePassword(password)) {
+    //   toast.error(
+    //     "Password must be at least 6 characters long, contain one uppercase letter, and one number."
+    //   );
+    //   return;
+    // }
 
     setLoading(true);
 
