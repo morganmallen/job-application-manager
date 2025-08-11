@@ -5,6 +5,7 @@ import "./ForgotReset.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { Loading } from "../components/loading";
 
 const ResetPassword = () => {
   const query = new URLSearchParams(useLocation().search);
@@ -15,6 +16,7 @@ const ResetPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const validatePassword = (pwd: string) => {
     const hasMinLength = pwd.length >= 6;
