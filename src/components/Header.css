@@ -161,6 +161,27 @@
   display: flex;
 }
 
+.mobile-actions {
+  display: none; /* hidden on desktop */
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .mobile-actions {
+    display: flex;
+  }
+  .notification-mobile {
+    display: block;
+  }
+  .mobile-menu-toggle {
+    display: block;
+  }
+  .notification-bell {
+    margin: .5rem 0 0 0;
+  }
+}
+
 /* Responsive styles */
 @media (max-width: 768px) {
   .header-content {

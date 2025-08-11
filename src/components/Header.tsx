@@ -253,14 +253,20 @@ const Header = () => {
             </div>
           </div>
         )}
-
-        <button
-          className="mobile-menu-toggle"
-          onClick={toggleMobileMenu}
-          aria-label="Toggle mobile menu"
-        >
-          {isMobileMenuOpen ? "✕" : "☰"}
-        </button>
+        <div className="mobile-actions">
+          {user && (
+            <div className="notification-mobile" >
+              <NotificationDropdown userId={user.userID || user.id} />
+            </div>
+          )}
+          <button
+            className="mobile-menu-toggle"
+            onClick={toggleMobileMenu}
+            aria-label="Toggle mobile menu"
+          >
+            {isMobileMenuOpen ? "✕" : "☰"}
+          </button>
+        </div>
       </div>
     </header>
   );
