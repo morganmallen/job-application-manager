@@ -49,6 +49,7 @@ const ResetPassword = () => {
       toast.error("Missing or invalid reset token");
       return;
     }
+        setLoading(true);
 
     try {
       const response = await fetch(
@@ -69,6 +70,8 @@ const ResetPassword = () => {
     } catch (err) {
       console.error(err);
       toast.error("Error resetting password");
+    } finally {
+      setLoading(false);
     }
   };
 
