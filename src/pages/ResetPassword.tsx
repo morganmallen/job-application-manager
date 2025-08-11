@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import "./ForgotReset.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const ResetPassword = () => {
   const query = new URLSearchParams(useLocation().search);
@@ -12,6 +13,8 @@ const ResetPassword = () => {
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const validatePassword = (pwd: string) => {
     const hasMinLength = pwd.length >= 6;
