@@ -33,7 +33,7 @@ const ForgotPassword = () => {
       const resetToken = data.token;
 
       // Step 2: Build the reset link
-      const resetLink = `http://localhost:5173/job-application-manager/reset-password?token=${encodeURIComponent(
+      const resetLink = `https://morganmallen.github.io/job-application-manager/reset-password?token=${encodeURIComponent(
         resetToken
       )}`;
 
