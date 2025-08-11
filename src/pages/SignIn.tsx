@@ -42,9 +42,9 @@ const SignIn = () => {
               text: "Invalid email or password.",
               icon: "error",
             });
+          break;
           default:
             throw new Error("Failed to login try again");
-          break;
         }
       }
 
