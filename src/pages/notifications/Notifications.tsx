@@ -10,10 +10,12 @@ interface NotificationItem {
 }
 
 const NotificationsPage: React.FC = () => {
+  // State for notifications list and UI controls
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
+  // Fetch all notifications from the API
   const fetchAll = async () => {
     try {
       setLoading(true);
@@ -33,6 +35,7 @@ const NotificationsPage: React.FC = () => {
     }
   };
 
+  // Mark all notifications as read via API
   const markAllAsRead = async () => {
     try {
       const token = localStorage.getItem("access_token");
@@ -46,6 +49,7 @@ const NotificationsPage: React.FC = () => {
     }
   };
 
+  // Mark a single notification as read via API
   const markOneRead = async (id: string) => {
     try {
       const token = localStorage.getItem("access_token");
@@ -59,10 +63,12 @@ const NotificationsPage: React.FC = () => {
     }
   };
 
+  // Load notifications when component mounts
   useEffect(() => {
     fetchAll();
   }, []);
 
+  // Loading and error states
   if (loading) return <div className="app page-root"><main className="board-main"><p>Loading notifications...</p></main></div>;
   if (error) return <div className="app page-root"><main className="board-main"><p>{error}</p></main></div>;
 

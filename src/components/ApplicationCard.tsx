@@ -36,8 +36,10 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
   onViewDetails,
   isDragging = false,
 }) => {
+  // Track the number of events for this application
   const [eventCount, setEventCount] = useState(0);
 
+  // Fetch event count from API for applications in progress
   const fetchEventCount = useCallback(async () => {
     try {
       const token = localStorage.getItem("access_token");
@@ -61,16 +63,19 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
     }
   }, [application.id]);
 
+  // Fetch event count when application status is "In progress"
   useEffect(() => {
     if (application.status === "In progress") {
       fetchEventCount();
     }
   }, [application.status, fetchEventCount]);
 
+  // Handle drag start event for drag and drop functionality
   const handleDragStart = () => {
     onDragStart(application);
   };
 
+  // Handle card click to view application details
   const handleCardClick = () => {
     if (onViewDetails) {
       onViewDetails(application);
@@ -100,6 +105,7 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
 
         {application.salary && <p className="salary">{application.salary}</p>}
 
+        {/* Event count display for applications in progress */}
         {application.status === "In progress" && (
           <div className="events-info">
             <span className="event-count">

@@ -35,33 +35,35 @@ interface JobApplication {
 }
 
 const Board = () => {
+  // Core application state and UI controls
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Drag and drop state management
   const [draggedItem, setDraggedItem] = useState<JobApplication | null>(null);
-  const [draggedFromColumn, setDraggedFromColumn] = useState<string | null>(
-    null
-  );
+  const [draggedFromColumn, setDraggedFromColumn] = useState<string | null>(null);
   const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
   const [workflowError, setWorkflowError] = useState<string | null>(null);
+  
+  // Modal state management
   const [isMoveConfirmModalOpen, setIsMoveConfirmModalOpen] = useState(false);
   const [pendingMove, setPendingMove] = useState<{
     application: JobApplication;
     fromStatus: string;
     toStatus: string;
   } | null>(null);
-  const [isEventCreationModalOpen, setIsEventCreationModalOpen] =
-    useState(false);
+  const [isEventCreationModalOpen, setIsEventCreationModalOpen] = useState(false);
   const [pendingEventCreation, setPendingEventCreation] = useState<{
     application: JobApplication;
     fromStatus: string;
     toStatus: string;
   } | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [selectedApplication, setSelectedApplication] =
-    useState<JobApplication | null>(null);
+  const [selectedApplication, setSelectedApplication] = useState<JobApplication | null>(null);
 
+  // Board column definitions for application statuses
   const columns = [
     { id: "Applied", title: "Applied" },
     { id: "In progress", title: "In Progress" },
@@ -71,6 +73,7 @@ const Board = () => {
     { id: "Withdraw", title: "Withdraw" },
   ];
 
+  // Workflow rules defining allowed status transitions
   const workflowRules: Record<string, string[]> = {
     Applied: ["In progress", "Rejected", "Withdraw"],
     "In progress": ["Job Offered", "Rejected", "Withdraw"],
@@ -80,11 +83,13 @@ const Board = () => {
     Withdraw: [],
   };
 
+  // Check if a status move is allowed according to workflow rules
   const isMoveAllowed = (fromStatus: string, toStatus: string): boolean => {
     const allowedMoves = workflowRules[fromStatus];
     return allowedMoves ? allowedMoves.includes(toStatus) : false;
   };
 
+  // Get CSS class for column drop zone based on drag validity
   const getColumnDropZoneClass = (columnId: string): string => {
     if (!draggedItem || !draggedFromColumn) return "";
 
@@ -92,6 +97,7 @@ const Board = () => {
     return isAllowed ? "valid-drop-zone" : "invalid-drop-zone";
   };
 
+  // Filter applications by status for column display
   const getApplicationsByStatus = (status: string) => {
     return applications.filter((app) => app.status === status);
   };
@@ -111,6 +117,7 @@ const Board = () => {
     }
   };
 
+  // Handle creation of new job application with company
   const handleCreateApplication = async (applicationData: {
     position: string;
     companyName: string;
@@ -125,6 +132,8 @@ const Board = () => {
       if (!token) {
         throw new Error("No authentication token found");
       }
+      
+      // Create or find existing company
       const companyResponse = await fetch(
         `${import.meta.env.VITE_API_URL}/companies`,
         {
@@ -147,6 +156,8 @@ const Board = () => {
       }
 
       const newCompany = await companyResponse.json();
+      
+      // Create new application
       const applicationResponse = await fetch(
         `${import.meta.env.VITE_API_URL}/applications`,
         {
@@ -182,6 +193,7 @@ const Board = () => {
     }
   };
 
+  // Update application status via API
   const handleUpdateApplicationStatus = async (
     applicationId: string,
     newStatus: string
@@ -199,6 +211,7 @@ const Board = () => {
     }
   };
 
+  // Delete application via API
   const handleDeleteApplication = async (applicationId: string) => {
     try {
       const token = localStorage.getItem("access_token");
@@ -226,6 +239,7 @@ const Board = () => {
     }
   };
 
+  // Handle application editing with company management
   const handleEditApplicationSubmit = async (
     applicationId: string,
     applicationData: {
@@ -253,11 +267,14 @@ const Board = () => {
       }
 
       let companyId = currentApplication.company.id;
+      
+      // Handle company name changes
       if (applicationData.companyName !== currentApplication.company.name) {
         const encodedCompanyName = encodeURIComponent(
           applicationData.companyName
         );
 
+        // Search for existing company
         const existingCompanyResponse = await fetch(
           `${
             import.meta.env.VITE_API_URL
@@ -272,9 +289,9 @@ const Board = () => {
 
         if (existingCompanyResponse.ok) {
           const existingCompany = await existingCompanyResponse.json();
-
           companyId = existingCompany.id;
         } else if (existingCompanyResponse.status === 404) {
+          // Create new company if not found
           const companyPayload: any = {
             name: applicationData.companyName,
           };
@@ -310,6 +327,7 @@ const Board = () => {
           throw new Error("Failed to search for existing company");
         }
       } else {
+        // Update existing company if website or location changed
         const websiteChanged =
           applicationData.website !== currentApplication.company.website;
         const locationChanged =
@@ -350,6 +368,8 @@ const Board = () => {
           }
         }
       }
+      
+      // Update application with new data
       const updatePayload = {
         position: applicationData.position,
         companyId: companyId,
@@ -396,15 +416,18 @@ const Board = () => {
     }
   };
 
+  // Load applications on component mount
   useEffect(() => {
     fetchApplications();
   }, []);
 
+  // Handle drag start for application cards
   const handleDragStart = (application: JobApplication, columnId: string) => {
     setDraggedItem(application);
     setDraggedFromColumn(columnId);
   };
 
+  // Handle drag over with auto-scroll functionality
   const handleDragOver = (e: React.DragEvent, columnId: string) => {
     e.preventDefault();
     setDragOverColumn(columnId);
@@ -413,6 +436,7 @@ const Board = () => {
     const container = document.querySelector(".board-container");
     if (!container) return;
 
+    // Auto-scroll when dragging near edges
     const containerRect = container.getBoundingClientRect();
     const scrollThreshold = 100;
     const maxScrollSpeed = 15;
@@ -435,18 +459,21 @@ const Board = () => {
     }
   };
 
+  // Handle drag leave events
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOverColumn(null);
     setWorkflowError(null);
   };
 
+  // Handle drop events with workflow validation
   const handleDrop = (e: React.DragEvent, targetColumnId: string) => {
     e.preventDefault();
     setDragOverColumn(null);
 
     if (!draggedItem || !draggedFromColumn) return;
 
+    // No change if dropping in same column
     if (draggedFromColumn === targetColumnId) {
       setDraggedItem(null);
       setDraggedFromColumn(null);
@@ -454,6 +481,7 @@ const Board = () => {
       return;
     }
 
+    // Validate workflow rules
     if (!isMoveAllowed(draggedFromColumn, targetColumnId)) {
       setWorkflowError(
         `Cannot move from "${draggedFromColumn}" to "${targetColumnId}". Please follow the workflow progression.`
@@ -465,6 +493,7 @@ const Board = () => {
 
     setWorkflowError(null);
 
+    // Set up move confirmation
     if (targetColumnId === "In progress") {
       setPendingMove({
         application: draggedItem,
@@ -484,10 +513,11 @@ const Board = () => {
     setDraggedItem(null);
     setDraggedFromColumn(null);
   };
+  
   const setActiveCards = useSetAtom(activeCardsAtom);
 
+  // Update dashboard atom with card counts per column
   useEffect(() => {
-    // Count cards per column (category)
     const cardCountsByCategory: Record<string, number> = {};
 
     columns.forEach((column) => {
@@ -501,6 +531,7 @@ const Board = () => {
     setActiveCards(cardCountsByCategory);
   }, [applications, columns, setActiveCards]);
 
+  // Handle move confirmation and trigger event creation if needed
   const handleConfirmMove = async () => {
     if (!pendingMove) return;
 
@@ -509,6 +540,8 @@ const Board = () => {
         pendingMove.application.id,
         pendingMove.toStatus
       );
+      
+      // Trigger event creation for "In progress" status
       if (pendingMove.toStatus === "In progress") {
         setPendingEventCreation({
           application: pendingMove.application,
@@ -526,11 +559,13 @@ const Board = () => {
     }
   };
 
+  // Cancel move operation
   const handleCancelMove = () => {
     setIsMoveConfirmModalOpen(false);
     setPendingMove(null);
   };
 
+  // Handle event creation and application status update
   const handleCreateEvent = async (eventData: {
     type: string;
     title: string;
@@ -541,11 +576,14 @@ const Board = () => {
 
     try {
       const token = localStorage.getItem("access_token");
+      
+      // Create the event
       await createEvent(token || "", {
         ...eventData,
         applicationId: pendingEventCreation.application.id,
       });
 
+      // Update application status
       await handleUpdateApplicationStatus(
         pendingEventCreation.application.id,
         pendingEventCreation.toStatus
@@ -560,21 +598,25 @@ const Board = () => {
     }
   };
 
+  // Cancel event creation
   const handleCancelEventCreation = () => {
     setIsEventCreationModalOpen(false);
     setPendingEventCreation(null);
   };
 
+  // Open application details modal
   const handleViewDetails = (application: JobApplication) => {
     setSelectedApplication(application);
     setIsDetailsModalOpen(true);
   };
 
+  // Close application details modal
   const handleCloseDetails = () => {
     setIsDetailsModalOpen(false);
     setSelectedApplication(null);
   };
 
+  // Handle event addition and update application timestamp
   const handleEventAdded = (applicationId: string) => {
     setApplications((prev) =>
       prev.map((app) =>
@@ -591,6 +633,7 @@ const Board = () => {
     }
   };
 
+  // Loading state display
   if (loading) {
     return (
       <div className="app page-root">

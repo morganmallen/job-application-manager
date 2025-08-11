@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import "./ApplicationEvents.css";
-import { EVENT_TYPE_LABELS, fetchEventsForApplication, createEvent } from "../utils/events";
+import {
+  EVENT_TYPE_LABELS,
+  fetchEventsForApplication,
+  createEvent,
+} from "../utils/events";
 import type { InterviewEvent } from "../utils/events";
 
 type Event = InterviewEvent;
@@ -12,16 +16,18 @@ interface ApplicationEventsProps {
   onAdded?: () => void;
 }
 
-
 const ApplicationEvents: React.FC<ApplicationEventsProps> = ({
   applicationId,
   isVisible,
   canAdd = true,
   onAdded,
 }) => {
+  // State for events list and UI controls
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
+
+  // Form state for adding new events
   const [newEvent, setNewEvent] = useState({
     type: "",
     title: "",
@@ -29,6 +35,7 @@ const ApplicationEvents: React.FC<ApplicationEventsProps> = ({
     scheduledAt: "",
   });
 
+  // Fetch events for the current application
   const fetchEvents = useCallback(async () => {
     setLoading(true);
     try {
@@ -42,23 +49,24 @@ const ApplicationEvents: React.FC<ApplicationEventsProps> = ({
     }
   }, [applicationId]);
 
+  // Load events when component becomes visible
   useEffect(() => {
     if (isVisible && applicationId) {
       fetchEvents();
     }
   }, [isVisible, applicationId, fetchEvents]);
 
+  // Hide add form if adding is not allowed
   useEffect(() => {
     if (!canAdd && showAddForm) {
       setShowAddForm(false);
     }
   }, [canAdd, showAddForm]);
 
-  
-
+  // Handle form submission for adding new events
   const handleAddEvent = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!canAdd || !newEvent.type || !newEvent.title) return;
 
     try {
@@ -73,6 +81,7 @@ const ApplicationEvents: React.FC<ApplicationEventsProps> = ({
     }
   };
 
+  // Format date for display in event list
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       month: "short",
@@ -83,13 +92,16 @@ const ApplicationEvents: React.FC<ApplicationEventsProps> = ({
     });
   };
 
+  // Determine event status based on completion and scheduling
   const getEventStatus = (event: Event) => {
     if (event.completedAt) return "completed";
-    if (event.scheduledAt && new Date(event.scheduledAt) < new Date()) return "history";
+    if (event.scheduledAt && new Date(event.scheduledAt) < new Date())
+      return "history";
     if (event.scheduledAt) return "scheduled";
     return "pending";
   };
 
+  // Don't render if component is not visible
   if (!isVisible) return null;
 
   return (
@@ -113,7 +125,9 @@ const ApplicationEvents: React.FC<ApplicationEventsProps> = ({
               <label>Event Type</label>
               <select
                 value={newEvent.type}
-                onChange={(e) => setNewEvent({ ...newEvent, type: e.target.value })}
+                onChange={(e) =>
+                  setNewEvent({ ...newEvent, type: e.target.value })
+                }
                 required
               >
                 <option value="">Select type</option>
@@ -129,32 +143,38 @@ const ApplicationEvents: React.FC<ApplicationEventsProps> = ({
               <input
                 type="text"
                 value={newEvent.title}
-                onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                onChange={(e) =>
+                  setNewEvent({ ...newEvent, title: e.target.value })
+                }
                 placeholder="e.g., Technical Interview"
                 required
               />
             </div>
           </div>
-          
+
           <div className="form-group">
             <label>Description</label>
             <textarea
               value={newEvent.description}
-              onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
+              onChange={(e) =>
+                setNewEvent({ ...newEvent, description: e.target.value })
+              }
               placeholder="Optional description"
               rows={2}
             />
           </div>
-          
+
           <div className="form-group">
             <label>Scheduled Date & Time</label>
             <input
               type="datetime-local"
               value={newEvent.scheduledAt}
-              onChange={(e) => setNewEvent({ ...newEvent, scheduledAt: e.target.value })}
+              onChange={(e) =>
+                setNewEvent({ ...newEvent, scheduledAt: e.target.value })
+              }
             />
           </div>
-          
+
           <div className="form-actions">
             <button type="submit" className="submit-btn">
               Add Event
@@ -178,12 +198,21 @@ const ApplicationEvents: React.FC<ApplicationEventsProps> = ({
           {(() => {
             const now = new Date();
 
+            // Filter and sort upcoming events
             const upcoming = events
-              .filter((e) => e.scheduledAt && !e.completedAt && new Date(e.scheduledAt) > now)
+              .filter(
+                (e) =>
+                  e.scheduledAt &&
+                  !e.completedAt &&
+                  new Date(e.scheduledAt) > now
+              )
               .sort(
-                (a, b) => new Date(a.scheduledAt as string).getTime() - new Date(b.scheduledAt as string).getTime()
+                (a, b) =>
+                  new Date(a.scheduledAt as string).getTime() -
+                  new Date(b.scheduledAt as string).getTime()
               );
 
+            // Filter and sort historical events
             const history = events
               .filter(
                 (e) =>
@@ -192,8 +221,12 @@ const ApplicationEvents: React.FC<ApplicationEventsProps> = ({
                   !e.scheduledAt
               )
               .sort((a, b) => {
-                const aDate = new Date((a.completedAt || a.scheduledAt || a.createdAt) as string).getTime();
-                const bDate = new Date((b.completedAt || b.scheduledAt || b.createdAt) as string).getTime();
+                const aDate = new Date(
+                  (a.completedAt || a.scheduledAt || a.createdAt) as string
+                ).getTime();
+                const bDate = new Date(
+                  (b.completedAt || b.scheduledAt || b.createdAt) as string
+                ).getTime();
                 return bDate - aDate;
               });
 
@@ -203,17 +236,30 @@ const ApplicationEvents: React.FC<ApplicationEventsProps> = ({
                   <div className="events-subsection">
                     <h5 className="events-subheader">Upcoming</h5>
                     {upcoming.map((event) => (
-                      <div key={event.id} className={`event-item ${getEventStatus(event)}`}>
+                      <div
+                        key={event.id}
+                        className={`event-item ${getEventStatus(event)}`}
+                      >
                         <div className="event-header">
-                          <span className="event-type">{EVENT_TYPE_LABELS[event.type] || event.type}</span>
-                          <span className={`event-status ${getEventStatus(event)}`}>
+                          <span className="event-type">
+                            {EVENT_TYPE_LABELS[event.type] || event.type}
+                          </span>
+                          <span
+                            className={`event-status ${getEventStatus(event)}`}
+                          >
                             {getEventStatus(event)}
                           </span>
                         </div>
                         <h5 className="event-title">{event.title}</h5>
-                        {event.description && <p className="event-description">{event.description}</p>}
+                        {event.description && (
+                          <p className="event-description">
+                            {event.description}
+                          </p>
+                        )}
                         {event.scheduledAt && (
-                          <p className="event-scheduled">📅 {formatDate(event.scheduledAt)}</p>
+                          <p className="event-scheduled">
+                            📅 {formatDate(event.scheduledAt)}
+                          </p>
                         )}
                       </div>
                     ))}
@@ -224,17 +270,30 @@ const ApplicationEvents: React.FC<ApplicationEventsProps> = ({
                   <div className="events-subsection">
                     <h5 className="events-subheader">History</h5>
                     {history.map((event) => (
-                      <div key={event.id} className={`event-item ${getEventStatus(event)}`}>
+                      <div
+                        key={event.id}
+                        className={`event-item ${getEventStatus(event)}`}
+                      >
                         <div className="event-header">
-                          <span className="event-type">{EVENT_TYPE_LABELS[event.type] || event.type}</span>
-                          <span className={`event-status ${getEventStatus(event)}`}>
+                          <span className="event-type">
+                            {EVENT_TYPE_LABELS[event.type] || event.type}
+                          </span>
+                          <span
+                            className={`event-status ${getEventStatus(event)}`}
+                          >
                             {getEventStatus(event)}
                           </span>
                         </div>
                         <h5 className="event-title">{event.title}</h5>
-                        {event.description && <p className="event-description">{event.description}</p>}
+                        {event.description && (
+                          <p className="event-description">
+                            {event.description}
+                          </p>
+                        )}
                         {event.scheduledAt && (
-                          <p className="event-scheduled">📅 {formatDate(event.scheduledAt)}</p>
+                          <p className="event-scheduled">
+                            📅 {formatDate(event.scheduledAt)}
+                          </p>
                         )}
                       </div>
                     ))}
