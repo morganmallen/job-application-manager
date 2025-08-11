@@ -49,7 +49,7 @@ const ResetPassword = () => {
       toast.error("Missing or invalid reset token");
       return;
     }
-        setLoading(true);
+    setLoading(true);
 
     try {
       const response = await fetch(
@@ -118,7 +118,9 @@ const ResetPassword = () => {
               {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
           </div>
-          <button type="submit">Reset Password</button>
+          <button type="submit" disabled={loading}>
+            {loading ? <Loading /> : "Reset Password"}
+          </button>
         </form>
       </div>
       <Footer />
