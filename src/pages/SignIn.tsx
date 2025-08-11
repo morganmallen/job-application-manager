@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { Loading } from "../components/loading";
+import Swal from "sweetalert2";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -36,9 +37,13 @@ const SignIn = () => {
         const errData = await response.json();
         switch (errData.statusCode) {
           case 401:
-            throw new Error("Invalid credentials");
+            Swal.fire({
+              title: "Login Failed",
+              text: "Invalid email or password.",
+              icon: "error",
+            });
           default:
-            throw new Error("Failed to login");
+            throw new Error("Failed to login try again");
         }
       }
 
