@@ -1,9 +1,11 @@
 import React from "react";
 
+// Props for statistics cards
 type StatisticsCardProps = {
   stats: { count: number; label: string }[];
 };
 
+// Renders a set of statistics cards
 const StatisticsCards: React.FC<StatisticsCardProps> = ({ stats }) => {
   return (
     <div
