@@ -44,6 +44,7 @@ const SignIn = () => {
             });
           default:
             throw new Error("Failed to login try again");
+          break;
         }
       }
 
