@@ -18,12 +18,12 @@ const SignUp = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
-  const validatePassword = (pwd: string) => {
-    const hasMinLength = pwd.length >= 6;
-    const hasUpperCase = /[A-Z]/.test(pwd);
-    const hasNumber = /\d/.test(pwd);
-    return hasMinLength && hasUpperCase && hasNumber;
-  };
+  // const validatePassword = (pwd: string) => {
+  //   const hasMinLength = pwd.length >= 6;
+  //   const hasUpperCase = /[A-Z]/.test(pwd);
+  //   const hasNumber = /\d/.test(pwd);
+  //   return hasMinLength && hasUpperCase && hasNumber;
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
