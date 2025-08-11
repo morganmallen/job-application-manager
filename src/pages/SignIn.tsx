@@ -33,36 +33,37 @@ const SignIn = () => {
         }
       );
 
-      if (!response.ok) {
-        const errData = await response.json();
+      // 1. Leer el body stream UNA SOLA VEZ
+      const data = await response.json();
 
-        if (errData.statusCode === 401) {
+      if (!response.ok) {
+        if (response.status === 401) {
           Swal.fire({
             title: "Login Failed",
             text: "Invalid email or password.",
             icon: "error",
           });
         } else {
-          // Aquí el default se maneja de manera más clara
-          throw new Error("Failed to login try again");
+          throw new Error(data.message || "Failed to login, try again");
         }
+      } else {
+        //if response is ok 
+        localStorage.setItem("access_token", data.access_token);
+        localStorage.setItem("refresh_token", data.refresh_token);
+        if (data.user) {
+          const { first_name, last_name, email, id } = data.user;
+          localStorage.setItem(
+            "user",
+            JSON.stringify({ first_name, last_name, email, userID: id })
+          );
+        }
+        navigate("/dashboard");
       }
-
-      const data = await response.json();
-      localStorage.setItem("access_token", data.access_token);
-      localStorage.setItem("refresh_token", data.refresh_token);
-      if (data.user) {
-        const { first_name, last_name, email, id } = data.user;
-        localStorage.setItem(
-          "user",
-          JSON.stringify({ first_name, last_name, email, userID: id })
-        );
-      }
-
-      navigate("/dashboard");
     } catch (err: any) {
-      setError(err.message);
+      // Este catch capturará el error si el `fetch` falla o si lanzas un `throw new Error`
+      setError(err.message || "An unexpected error occurred.");
     } finally {
+      // Esto siempre se ejecutará al final, con éxito o con error
       setLoading(false);
     }
   };
