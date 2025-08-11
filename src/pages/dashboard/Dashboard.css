@@ -74,4 +74,24 @@
   }
 }
 
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+  }
+
+  .greetings {
+    font-size: 1.2rem;
+  }
+
+  .statistics-section,
+  .activity-section {
+    padding: 1rem;
+  }
+
+  .see-more-button, .go-to-board-button {
+    width: 100%;
+    margin-top: 1rem;
+  }
+}
+
 
