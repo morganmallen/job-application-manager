@@ -35,16 +35,16 @@ const SignIn = () => {
 
       if (!response.ok) {
         const errData = await response.json();
-        switch (errData.statusCode) {
-          case 401:
-            Swal.fire({
-              title: "Login Failed",
-              text: "Invalid email or password.",
-              icon: "error",
-            });
-          break;
-          default:
-            throw new Error("Failed to login try again");
+
+        if (errData.statusCode === 401) {
+          Swal.fire({
+            title: "Login Failed",
+            text: "Invalid email or password.",
+            icon: "error",
+          });
+        } else {
+          // Aquí el default se maneja de manera más clara
+          throw new Error("Failed to login try again");
         }
       }
 
