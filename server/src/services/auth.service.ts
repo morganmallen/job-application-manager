@@ -12,7 +12,8 @@ import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { ForgotPasswordDto } from '../dto/forgot-password.dto';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
-import { ConfigService } from '@nestjs/config'; // asegúrate de inyectarlo
+import { ConfigService } from '@nestjs/config';
+import { validatePassword } from "../../shared/validatePassword";
 
 
 @Injectable()
@@ -69,6 +70,18 @@ export class AuthService {
       if (existingUser) {
         throw new ConflictException('User with this email already exists');
       }
+
+          // Validate password
+    const hasMinLength = dto.password.length >= 6;
+    const hasUpperCase = /[A-Z]/.test(dto.password);
+    const hasNumber = /\d/.test(dto.password);
+
+    if (!hasMinLength || !hasUpperCase || !hasNumber) {
+      throw new BadRequestException(
+        'Password must be at least 6 characters long, contain one uppercase letter, and one number.'
+      );
+    }
+
       // Hash the password and create the user
       const hashedPassword = await bcrypt.hash(dto.password, 10);
       const user = await this.usersService.create({

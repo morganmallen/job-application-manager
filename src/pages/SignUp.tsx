@@ -59,7 +59,7 @@ const SignUp = () => {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || "Registration failed");
+        toast.error(data.message || "Registration failed");
       }
 
       toast.success("Account created successfully!");
