@@ -35,32 +35,36 @@ interface EventCreationModalProps {
   application: JobApplication | null;
 }
 
-
 const EventCreationModal: React.FC<EventCreationModalProps> = ({
   isOpen,
   onClose,
   onConfirm,
   application,
 }) => {
+  // Form state for event creation
   const [eventType, setEventType] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [scheduledAt, setScheduledAt] = useState("");
+  
+  // Loading state during form submission
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Don't render if modal is not open or no application data
   if (!isOpen || !application) {
     return null;
   }
 
+  // Handle form submission for creating new event
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!eventType || !title) {
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
       await onConfirm({
         type: eventType,
@@ -68,7 +72,8 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
         description: description || undefined,
         scheduledAt: scheduledAt || undefined,
       });
-      
+
+      // Reset form after successful submission
       setEventType("");
       setTitle("");
       setDescription("");
@@ -80,6 +85,7 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
     }
   };
 
+  // Handle modal close and form reset
   const handleClose = () => {
     if (!isSubmitting) {
       setEventType("");
@@ -92,10 +98,17 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
 
   return (
     <div className="modal-overlay" onClick={handleClose}>
-      <div className="event-creation-modal" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="event-creation-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal-header">
           <h3>Add Interview Event</h3>
-          <button className="modal-close" onClick={handleClose} disabled={isSubmitting}>
+          <button
+            className="modal-close"
+            onClick={handleClose}
+            disabled={isSubmitting}
+          >
             ×
           </button>
         </div>
@@ -170,15 +183,15 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
         </div>
 
         <div className="modal-actions">
-          <button 
-            className="cancel-btn" 
+          <button
+            className="cancel-btn"
             onClick={handleClose}
             disabled={isSubmitting}
           >
             Cancel
           </button>
-          <button 
-            className="confirm-btn" 
+          <button
+            className="confirm-btn"
             onClick={handleSubmit}
             disabled={!eventType || !title || isSubmitting}
           >

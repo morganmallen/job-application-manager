@@ -53,9 +53,12 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
   onDelete,
   onEventAdded,
 }) => {
+  // State for editing mode and form submission
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  
+  // Form state for editing application details
   const [editForm, setEditForm] = useState({
     position: "",
     companyName: "",
@@ -67,6 +70,7 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
     status: "",
   });
 
+  // Format salary input into standardized currency format
   const formatSalary = (value: string): string => {
     if (value.includes("-") || value.toLowerCase().includes("to")) {
       const rangeMatch = value.match(
@@ -89,11 +93,13 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
     return `$${number.toLocaleString()}`;
   };
 
+  // Handle salary input changes in real-time
   const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setEditForm((prev) => ({ ...prev, salary: value }));
   };
 
+  // Format salary when user leaves the salary input field
   const handleSalaryBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (value.trim()) {
@@ -102,6 +108,7 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
     }
   };
 
+  // Handle keyboard navigation and salary formatting on Enter key
   const handleSalaryKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -120,6 +127,7 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
     }
   };
 
+  // Initialize edit form with application data when modal opens
   useEffect(() => {
     if (isOpen && application) {
       setEditForm({
@@ -135,6 +143,7 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
     }
   }, [isOpen, application]);
 
+  // Get color for status badge based on application status
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Applied":
@@ -154,10 +163,12 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
     }
   };
 
+  // Toggle between view and edit modes
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
   };
 
+  // Handle form submission for editing application
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -174,6 +185,7 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
     }
   };
 
+  // Cancel editing and reset form to original values
   const handleEditCancel = () => {
     setIsEditing(false);
     if (application) {
@@ -190,8 +202,11 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
     }
   };
 
+  // Delete confirmation modal handlers
   const openDeleteConfirm = () => setConfirmDeleteOpen(true);
   const closeDeleteConfirm = () => setConfirmDeleteOpen(false);
+  
+  // Handle application deletion after confirmation
   const handleConfirmDelete = async () => {
     if (!application || !onDelete) return;
     try {
@@ -203,6 +218,7 @@ const ApplicationDetailsModal: React.FC<ApplicationDetailsModalProps> = ({
     }
   };
 
+  // Don't render if modal is not open or no application data
   if (!isOpen || !application) {
     return null;
   }
