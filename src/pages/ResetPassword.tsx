@@ -6,6 +6,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Loading } from "../components/loading";
+import { validatePassword } from "../utils/validatePassword";
 
 const ResetPassword = () => {
   const query = new URLSearchParams(useLocation().search);
@@ -17,13 +18,6 @@ const ResetPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  const validatePassword = (pwd: string) => {
-    const hasMinLength = pwd.length >= 6;
-    const hasUpperCase = /[A-Z]/.test(pwd);
-    const hasNumber = /\d/.test(pwd);
-    return hasMinLength && hasUpperCase && hasNumber;
-  };
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();

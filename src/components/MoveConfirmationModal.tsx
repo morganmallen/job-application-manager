@@ -37,6 +37,7 @@ const MoveConfirmationModal: React.FC<MoveConfirmationModalProps> = ({
   onConfirm,
   pendingMove,
 }) => {
+  // Don't render if modal is not open or no pending move
   if (!isOpen || !pendingMove) {
     return null;
   }

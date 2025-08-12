@@ -32,7 +32,9 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  //Format salary input
   const formatSalary = (value: string): string => {
+    // Handle salary ranges (e.g., "50000-100000" or "50000 to 100000")
     if (value.includes("-") || value.toLowerCase().includes("to")) {
       const rangeMatch = value.match(
         /(\d+(?:,\d+)*)\s*[-to]\s*(\d+(?:,\d+)*)/i
@@ -44,6 +46,7 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
       }
     }
 
+    // Handle single salary values
     const cleanValue = value.replace(/[^\d]/g, "");
 
     if (cleanValue === "") {
@@ -54,11 +57,19 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
     return `$${number.toLocaleString()}`;
   };
 
+  /**
+   * Handles salary input changes in real-time
+   * Allows users to type freely without immediate formatting
+   */
   const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSalary(value);
   };
 
+  /**
+   * Formats salary when user leaves the salary input field
+   * Triggers automatic formatting on blur event
+   */
   const handleSalaryBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (value.trim()) {
@@ -67,6 +78,11 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
     }
   };
 
+  /**
+   * Handles keyboard navigation and salary formatting on Enter key
+   * - Formats salary if Enter is pressed
+   * - Moves focus to the next input field for better UX
+   */
   const handleSalaryKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -75,6 +91,7 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
         const formatted = formatSalary(value);
         setSalary(formatted);
       }
+      // Move focus to next input field for better keyboard navigation
       const nextInput =
         e.currentTarget.parentElement?.nextElementSibling?.querySelector(
           "input"
@@ -85,6 +102,7 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
     }
   };
 
+ //Format website input
   const formatWebsite = (url: string): string => {
     if (!url.trim()) return url;
 
@@ -92,6 +110,7 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
 
     formattedUrl = formattedUrl.trim();
 
+    // Add https:// protocol if missing
     if (!formattedUrl.match(/^https?:\/\//)) {
       formattedUrl = `https://${formattedUrl}`;
     }
@@ -99,9 +118,11 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
     return formattedUrl;
   };
 
+ //Submit Form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate required fields
     if (!position.trim() || !companyName.trim()) {
       setError("Position and company are required");
       return;
@@ -114,6 +135,7 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
     const appliedAt = getCurrentLocalDateTime();
     console.log("appliedAt (local time):", appliedAt);
     try {
+      // Submit application data with formatted values
       await onSubmit({
         position: position.trim(),
         companyName: companyName.trim(),
@@ -141,6 +163,7 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
     }
   };
 
+  // Don't render anything if modal is not open
   if (!isOpen) return null;
 
   return (
