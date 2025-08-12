@@ -61,9 +61,10 @@ const SignUp = () => {
         const data = await response.json();
         toast.error(data.message || "Registration failed");
       }
-
-      toast.success("Account created successfully!");
-      navigate("/signin");
+      else {
+        toast.success("Account created successfully!");
+        navigate("/signin");
+      }
     } catch (err: any) {
       toast.error(err.message || "Something went wrong.");
     } finally {

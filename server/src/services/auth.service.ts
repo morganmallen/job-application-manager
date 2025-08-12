@@ -13,7 +13,6 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { ForgotPasswordDto } from '../dto/forgot-password.dto';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { ConfigService } from '@nestjs/config';
-import { validatePassword } from "../../shared/validatePassword";
 
 
 @Injectable()
