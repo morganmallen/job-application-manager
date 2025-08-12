@@ -6,6 +6,7 @@ import Footer from "../components/Footer";
 import { Loading } from "../components/loading";
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { validatePassword } from "../utils/validatePassword";
 
 const SignUp = () => {
   const [first_name, setFirstName] = useState("");
@@ -17,13 +18,6 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
-
-  const validatePassword = (pwd: string) => {
-    const hasMinLength = pwd.length >= 6;
-    const hasUpperCase = /[A-Z]/.test(pwd);
-    const hasNumber = /\d/.test(pwd);
-    return hasMinLength && hasUpperCase && hasNumber;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
