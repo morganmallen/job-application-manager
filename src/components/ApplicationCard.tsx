@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import "./ApplicationCard.css";
-import { formatDateForDisplay } from "../utils";
+// import { formatDateForDisplay } from "../utils";
 
 interface Company {
   id: string;
