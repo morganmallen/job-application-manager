@@ -70,7 +70,7 @@ export class AuthService {
         throw new ConflictException('User with this email already exists');
       }
 
-          // Validate password
+    // Validate password
     const hasMinLength = dto.password.length >= 6;
     const hasUpperCase = /[A-Z]/.test(dto.password);
     const hasNumber = /\d/.test(dto.password);
