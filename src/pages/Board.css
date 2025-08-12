@@ -90,8 +90,8 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  width: auto;
-  min-width: auto;
+  white-space: nowrap;
+  min-width: 180px;
 }
 
 .add-application-btn:hover {
