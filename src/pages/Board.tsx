@@ -12,6 +12,9 @@ import EventCreationModal from "../components/EventCreationModal";
 import { createEvent } from "../utils/events";
 import ApplicationDetailsModal from "../components/ApplicationDetailsModal";
 import { getCurrentLocalDateTime, api } from "../utils";
+import FilterBar from "../components/FilterBar";
+import type { FilterOptions } from "../components/FilterBar";
+import { filterApplications, getApplicationsByStatus } from "../utils/filterUtils";
 
 interface Company {
   id: string;
@@ -37,9 +40,12 @@ interface JobApplication {
 const Board = () => {
   // Core application state and UI controls
   const [applications, setApplications] = useState<JobApplication[]>([]);
+  const [filteredApplications, setFilteredApplications] = useState<JobApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
   
   // Drag and drop state management
   const [draggedItem, setDraggedItem] = useState<JobApplication | null>(null);
@@ -97,16 +103,23 @@ const Board = () => {
     return isAllowed ? "valid-drop-zone" : "invalid-drop-zone";
   };
 
-  // Filter applications by status for column display
-  const getApplicationsByStatus = (status: string) => {
-    return applications.filter((app) => app.status === status);
-  };
 
   // Fetch applications from the database
   const fetchApplications = async () => {
     try {
-      const data = await api.applications.getAll();
-      setApplications(data);
+      const [applicationsData, eventsData] = await Promise.all([
+        api.applications.getAll(),
+        api.events.getAll()
+      ]);
+      
+      // Attach events to applications
+      const applicationsWithEvents = applicationsData.map((app: any) => ({
+        ...app,
+        events: eventsData.filter((event: any) => event.applicationId === app.id)
+      }));
+      
+      setApplications(applicationsWithEvents);
+      setFilteredApplications(applicationsWithEvents);
       setError(""); // Clear any previous errors
     } catch (err: unknown) {
       setError(
@@ -116,6 +129,39 @@ const Board = () => {
       setLoading(false);
     }
   };
+
+  // Handle filter changes
+  const handleFiltersChange = (filters: FilterOptions) => {
+    const filtered = filterApplications(applications, filters);
+    setFilteredApplications(filtered);
+  };
+
+
+  // Handle click outside and escape key to close filter dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('.filter-toggle-btn') && !target.closest('.filter-bar')) {
+        setIsFilterOpen(false);
+      }
+    };
+
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsFilterOpen(false);
+      }
+    };
+
+    if (isFilterOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscapeKey);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [isFilterOpen]);
 
   // Handle creation of new job application with company
   const handleCreateApplication = async (applicationData: {
@@ -186,6 +232,7 @@ const Board = () => {
 
       const newApplication = await applicationResponse.json();
       setApplications((prev) => [...prev, newApplication]);
+      setFilteredApplications((prev) => [...prev, newApplication]);
     } catch (err: unknown) {
       throw new Error(
         err instanceof Error ? err.message : "Failed to create application"
@@ -203,6 +250,9 @@ const Board = () => {
         status: newStatus,
       });
       setApplications((prev) =>
+        prev.map((app) => (app.id === applicationId ? updatedApplication : app))
+      );
+      setFilteredApplications((prev) =>
         prev.map((app) => (app.id === applicationId ? updatedApplication : app))
       );
     } catch (err: unknown) {
@@ -234,6 +284,7 @@ const Board = () => {
       }
 
       setApplications((prev) => prev.filter((app) => app.id !== applicationId));
+      setFilteredApplications((prev) => prev.filter((app) => app.id !== applicationId));
     } catch (err: unknown) {
       console.error("Failed to delete application:", err);
     }
@@ -400,6 +451,14 @@ const Board = () => {
       const updatedApplication = await applicationResponse.json();
 
       setApplications((prev) => {
+        return prev.map((app) => {
+          if (app.id === applicationId) {
+            return updatedApplication;
+          }
+          return app;
+        });
+      });
+      setFilteredApplications((prev) => {
         return prev.map((app) => {
           if (app.id === applicationId) {
             return updatedApplication;
@@ -625,6 +684,13 @@ const Board = () => {
           : app
       )
     );
+    setFilteredApplications((prev) =>
+      prev.map((app) =>
+        app.id === applicationId
+          ? { ...app, updatedAt: new Date().toISOString() }
+          : app
+      )
+    );
     if (selectedApplication && selectedApplication.id === applicationId) {
       setSelectedApplication({
         ...selectedApplication,
@@ -652,12 +718,22 @@ const Board = () => {
       <main className="board-main">
         <div className="board-header">
           <h1>Job Application Board</h1>
-          <button
-            className="add-application-btn"
-            onClick={() => setIsModalOpen(true)}
-          >
-            + Add Application
-          </button>
+          <div className="header-actions">
+            <button
+              className="filter-toggle-btn"
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              aria-expanded={isFilterOpen}
+              title="Toggle filters"
+            >
+              {isFilterOpen ? 'Hide Filters' : 'Show Filters'}
+            </button>
+            <button
+              className="add-application-btn"
+              onClick={() => setIsModalOpen(true)}
+            >
+              + Add Application
+            </button>
+          </div>
         </div>
 
         {error && (
@@ -680,9 +756,16 @@ const Board = () => {
           </div>
         )}
 
+        <div className="filter-container" style={{ position: 'relative' }}>
+          <FilterBar
+            onFiltersChange={handleFiltersChange}
+            isOpen={isFilterOpen}
+          />
+        </div>
+
         <div className="board-container">
           {columns.map((column) => {
-            const columnApplications = getApplicationsByStatus(column.id);
+            const columnApplications = getApplicationsByStatus(filteredApplications, column.id);
             const dropZoneClass = getColumnDropZoneClass(column.id);
             return (
               <div

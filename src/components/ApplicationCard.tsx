@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import "./ApplicationCard.css";
-import { formatDateForDisplay } from "../utils";
+// import { formatDateForDisplay } from "../utils";
 
 interface Company {
   id: string;
@@ -92,11 +92,6 @@ const ApplicationCard: React.FC<ApplicationCardProps> = ({
       <div className="card-content">
         <div className="position-header">
           <h3 className="position">{application.position}</h3>
-          <div className="position-actions">
-            <span className="date">
-              {formatDateForDisplay(application.appliedAt)}
-            </span>
-          </div>
         </div>
 
         <h4 className="company-name">
